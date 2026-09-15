@@ -1,0 +1,24 @@
+BasedOnStyle: Chromium
+IndentWidth: 4
+ColumnLimit: 120
+
+BreakBeforeBraces: Custom
+BraceWrapping:
+    AfterClass: false
+    AfterStruct: false
+    AfterEnum: false
+    AfterUnion: false
+    AfterFunction: true
+    AfterControlStatement: Never
+    AfterCaseLabel: false
+    AfterExternBlock: false
+    BeforeElse: false
+    BeforeWhile: false
+    SplitEmptyFunction: false
+    SplitEmptyRecord: false
+
+AlignAfterOpenBracket: AlwaysBreak
+BracedInitializerIndentWidth: 4
+
+Cpp11BracedListStyle: false
+

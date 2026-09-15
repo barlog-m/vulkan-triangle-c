@@ -1,0 +1,10 @@
+CompileFlags:
+    CompilationDatabase: build/
+    Add: [ -std=gnu2x ]
+
+Diagnostics:
+    UnusedIncludes: Strict
+
+Style:
+    QuotedHeaders: "include/.*"
+    AngledHeaders: "external/.*"
