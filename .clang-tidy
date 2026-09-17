@@ -1,9 +1,10 @@
 ---
 Checks: >
-  -*,
-  bugprone-*,
-  misc-*,
-  modernize-*,
-  performance-*,
-  portability-*,
-  readability-*,
+    -*,
+    bugprone-*,
+    misc-*,
+    modernize-*,
+    performance-*,
+    portability-*,
+    readability-*,
+    readability-function-cognitive-complexity

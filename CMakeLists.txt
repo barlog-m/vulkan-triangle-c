@@ -12,6 +12,8 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
+find_package(glfw3 3.4 REQUIRED)
+
 set(APP_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
 file(GLOB_RECURSE SOURCES_C   CONFIGURE_DEPENDS ${APP_SOURCE_DIR}/*.c)
@@ -35,3 +37,4 @@ target_link_options(${PROJECT_NAME} PRIVATE
     $<$<CONFIG:Debug>: -fsanitize=address>
 )
 
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
