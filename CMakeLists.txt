@@ -8,6 +8,7 @@ if(NOT DEFINED CMAKE_CXX_COMPILER)
 endif()
 
 project(vulkan-tutorial-c LANGUAGES C CXX)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_C_STANDARD 23)
@@ -25,7 +26,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 set(APP_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
-file(GLOB_RECURSE SOURCES_C   CONFIGURE_DEPENDS ${APP_SOURCE_DIR}/*.c)
+file(GLOB_RECURSE SOURCES_C CONFIGURE_DEPENDS FOLLOW_SYMLINKS ${APP_SOURCE_DIR}/*.c)
 
 set(SOURCES ${SOURCES_C})
 
@@ -33,7 +34,7 @@ set_source_files_properties(${SOURCES_C}   PROPERTIES LANGUAGE C)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_include_directories(${PROJECT_NAME} PRIVATE src)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 target_compile_options(${PROJECT_NAME} PRIVATE
     -Wall -Wextra
@@ -56,7 +57,7 @@ if(WIN32 AND CMAKE_C_COMPILER_ID MATCHES "Clang")
     if(_asan_candidates)
         list(GET _asan_candidates 0 _asan_dll)
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                COMMAND $<$<CONFIG:Debug>:${CMAKE_COMMAND}> -E copy_if_different
+                COMMAND ${CMAKE_COMMAND} -E "$<IF:$<CONFIG:Debug>,copy_if_different,echo>"
                 "${_asan_dll}" "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
                 COMMAND_EXPAND_LISTS
                 VERBATIM)
