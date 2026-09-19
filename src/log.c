@@ -10,95 +10,95 @@
 #include <string.h>
 #include <time.h>
 
-enum B_LOG_LEVEL g_log_level = 0;
+enum LOG_LEVEL g_log_level = 0;
 
-#define B_CONSOLE_RED "\033[31m"
-#define B_CONSOLE_GREEN "\033[32m"
-#define B_CONSOLE_YELLOW "\033[33m"
-#define B_CONSOLE_WHITE "\033[37m"
-#define B_CONSOLE_GRAY "\033[90m"
-#define B_CONSOLE_BOLD  "\033[1m"
-#define B_CONSOLE_RESET "\033[0m"
+#define CONSOLE_RED "\033[31m"
+#define CONSOLE_GREEN "\033[32m"
+#define CONSOLE_YELLOW "\033[33m"
+#define CONSOLE_WHITE "\033[37m"
+#define CONSOLE_GRAY "\033[90m"
+#define CONSOLE_BOLD  "\033[1m"
+#define CONSOLE_RESET "\033[0m"
 
-#define B_CONSOLE_FATAL "\x1b[1m\x1b[37m\x1b[41m"
+#define CONSOLE_FATAL "\x1b[1m\x1b[37m\x1b[41m"
 
-static char* b_log_level_to_string(enum B_LOG_LEVEL log_lvl)
+static char* log_level_to_string(enum LOG_LEVEL log_lvl)
 {
     switch (log_lvl) {
-        case B_FATAL:
+        case LOG_LEVEL_FATAL:
             return "FATAL";
-        case B_ERROR:
+        case LOG_LEVEL_ERROR:
             return "ERROR";
-        case B_WARN:
+        case LOG_LEVEL_WARN:
             return "WARN ";
-        case B_INFO:
+        case LOG_LEVEL_INFO:
             return "INFO ";
-        case B_DEBUG:
+        case LOG_LEVEL_DEBUG:
             return "DEBUG";
         default:
             return "";
     }
 }
 
-static enum B_LOG_LEVEL b_string_to_log_level(const char* log_lvl)
+static enum LOG_LEVEL log_string_to_level(const char* log_lvl)
 {
     if (strcmp("FATAL", log_lvl) == 0) {
-        return B_FATAL;
+        return LOG_LEVEL_FATAL;
     }
     if (strcmp("ERROR", log_lvl) == 0) {
-        return B_ERROR;
+        return ERROR;
     }
     if (strcmp("WARN", log_lvl) == 0) {
-        return B_WARN;
+        return LOG_LEVEL_WARN;
     }
     if (strcmp("INFO", log_lvl) == 0) {
-        return B_INFO;
+        return LOG_LEVEL_INFO;
     }
     if (strcmp("DEBUG", log_lvl) == 0) {
-        return B_DEBUG;
+        return LOG_LEVEL_DEBUG;
     }
-    return B_ALL;
+    return LOG_LEVEL_ALL;
 }
 
-static enum B_LOG_LEVEL b_log_level_set(void)
+static enum LOG_LEVEL log_level_set(void)
 {
 #ifdef _WIN32
     char* log_lvl = NULL;
     size_t len = 0;
-    if (_dupenv_s(&log_lvl, &len, "U_LOG") != 0 || log_lvl == NULL) {
-        return B_ALL;
+    if (_dupenv_s(&log_lvl, &len, "A_LOG") != 0 || log_lvl == NULL) {
+        return LOG_LEVEL_ALL;
     }
-    const enum B_LOG_LEVEL lvl = b_string_to_log_level(log_lvl);
+    const enum LOG_LEVEL lvl = log_string_to_level(log_lvl);
     free(log_lvl);
     return lvl;
 #else
-    const char* log_lvl = getenv("U_LOG");   /* POSIX path unchanged */
+    const char* log_lvl = getenv("A_LOG");   /* POSIX path unchanged */
     if (log_lvl) {
-        return b_string_to_log_level(log_lvl);
+        return log_string_to_level(log_lvl);
     }
-    return B_ALL;
+    return LOG_LEVEL_ALL;
 #endif
 }
 
-static const char* b_color_by_log_level(enum B_LOG_LEVEL log_lvl)
+static const char* log_color_by_level(enum LOG_LEVEL log_lvl)
 {
     switch (log_lvl) {
-        case B_FATAL:
-            return B_CONSOLE_FATAL;
-        case B_ERROR:
-            return B_CONSOLE_RED;
-        case B_WARN:
-            return B_CONSOLE_YELLOW;
-        case B_INFO:
-            return B_CONSOLE_WHITE;
-        case B_DEBUG:
-            return B_CONSOLE_GRAY;
+        case LOG_LEVEL_FATAL:
+            return CONSOLE_FATAL;
+        case LOG_LEVEL_ERROR:
+            return CONSOLE_RED;
+        case LOG_LEVEL_WARN:
+            return CONSOLE_YELLOW;
+        case LOG_LEVEL_INFO:
+            return CONSOLE_WHITE;
+        case LOG_LEVEL_DEBUG:
+            return CONSOLE_GRAY;
         default:
-            return B_CONSOLE_RESET;
+            return CONSOLE_RESET;
     }
 }
 
-static struct tm b_get_local_time()
+static struct tm log_local_time_get()
 {
     const time_t utc_sec = time(nullptr);
 
@@ -113,7 +113,7 @@ static struct tm b_get_local_time()
 }
 
 #ifdef _WIN32
-static int b_console_enable_colors(void)
+static int log_console_colors_enable(void)
 {
     static int state = -1;
     if (state != -1) {
@@ -142,25 +142,26 @@ static int b_console_enable_colors(void)
 }
 #endif
 
-void b_log(enum B_LOG_LEVEL lvl, const char* msg)
+void log_msg(enum LOG_LEVEL lvl, const char* msg)
 {
-    const struct tm local_time = b_get_local_time();
+    const struct tm local_time = log_local_time_get();
+
     const int colorized =
 #ifdef _WIN32
-        b_console_enable_colors();
+        log_console_colors_enable();
 #else
         1;
 #endif
 
-    const char* color = colorized ? b_color_by_log_level(lvl) : "";
-    const char* reset = colorized ? B_CONSOLE_RESET : "";
+    const char* color = colorized ? log_color_by_level(lvl) : "";
+    const char* reset = colorized ? CONSOLE_RESET : "";
 
-    const char* lvl_str = b_log_level_to_string(lvl);
+    const char* lvl_str = log_level_to_string(lvl);
 
-    char time_string[B_LOG_TIME_STR_MAX_LEN];
+    char time_string[LOG_TIME_STR_LEN];
     strftime(time_string, sizeof(time_string), "%Y-%m-%d %H:%M:%S", &local_time);
 
-    char line[B_LOG_MSG_LEN];
+    char line[LOG_MSG_LEN];
     snprintf(line, sizeof(line), "%s %s%s %s%s\n", time_string, color, lvl_str, msg, reset);
 
     printf("%s", line);

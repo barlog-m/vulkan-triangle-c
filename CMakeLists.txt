@@ -23,6 +23,9 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -march=native")
+
+find_package(Vulkan REQUIRED)
+
 add_subdirectory(vendor/sdl EXCLUDE_FROM_ALL)
 
 set(APP_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
@@ -49,6 +52,7 @@ target_link_options(${PROJECT_NAME} PRIVATE
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
+target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan)
 
 # Windows + Clang + Debug: app.exe needs clang_rt.asan_dynamic-<arch>.dll
 if(WIN32 AND CMAKE_C_COMPILER_ID MATCHES "Clang")
