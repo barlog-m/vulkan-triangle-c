@@ -9,7 +9,7 @@ typedef struct {
     size_t formats_count;
     VkPresentModeKHR* present_modes;
     size_t present_modes_count;
-} UVkSwapChainSupportDetails;
+} VkSwapChainSupportDetails;
 
 typedef struct {
     uint32_t graphics_family;
@@ -18,7 +18,7 @@ typedef struct {
     bool has_graphics;
     bool has_compute;
     bool has_transfer;
-} UVkQueueFamilyIndices;
+} VkQueueFamilyIndices;
 
 typedef struct {
     VkInstance instance;
@@ -28,7 +28,7 @@ typedef struct {
     VkSwapchainKHR swap_chain;
     VkQueue graphics_queue;
     VkQueue compute_queue;
-    UVkQueueFamilyIndices queue_family_indices;
+    VkQueueFamilyIndices queue_family_indices;
     VkImage* swap_chain_images;
     uint32_t swap_chain_images_count;
     uint32_t swap_chain_image_views_count;

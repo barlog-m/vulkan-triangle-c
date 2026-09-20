@@ -260,9 +260,9 @@ static void vk_pick_physical_device(VkInstance instance, VkSurfaceKHR surface, V
 }
 
 static void
-vk_find_best_queue_families(VkPhysicalDevice gpu, VkSurfaceKHR surface, UVkQueueFamilyIndices* queue_family_indices)
+vk_find_best_queue_families(VkPhysicalDevice gpu, VkSurfaceKHR surface, VkQueueFamilyIndices* queue_family_indices)
 {
-    UVkQueueFamilyIndices indices = {};
+    VkQueueFamilyIndices indices = {};
 
     uint32_t queue_family_count = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queue_family_count, nullptr);
@@ -337,7 +337,7 @@ static void vk_create_logical_device(
     VkPhysicalDevice gpu,
     VkDevice* device,
     VkSurfaceKHR surface,
-    UVkQueueFamilyIndices* queue_family_indices,
+    VkQueueFamilyIndices* queue_family_indices,
     VkQueue* graphics_queue,
     VkQueue* compute_queue)
 {

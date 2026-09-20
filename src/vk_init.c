@@ -11,9 +11,9 @@
 
 static constexpr size_t MAX_SWAPCHAIN_IMAGES = 4;
 
-static UVkSwapChainSupportDetails u_vk_query_swap_chain_support(VkPhysicalDevice gpu, VkSurfaceKHR surface)
+static VkSwapChainSupportDetails vk_query_swap_chain_support(VkPhysicalDevice gpu, VkSurfaceKHR surface)
 {
-    UVkSwapChainSupportDetails details = {};
+    VkSwapChainSupportDetails details = {};
 
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(gpu, surface, &details.capabilities);
 
@@ -38,14 +38,14 @@ static UVkSwapChainSupportDetails u_vk_query_swap_chain_support(VkPhysicalDevice
     return details;
 }
 
-static void u_vk_free_swap_chain_support_details(UVkSwapChainSupportDetails* details)
+static void vk_free_swap_chain_support_details(VkSwapChainSupportDetails* details)
 {
     free(details->formats);
     free(details->present_modes);
-    *details = (UVkSwapChainSupportDetails){};
+    *details = (VkSwapChainSupportDetails){};
 }
 
-static VkSurfaceFormatKHR u_vk_choose_swap_surface_format(
+static VkSurfaceFormatKHR vk_choose_swap_surface_format(
     const VkSurfaceFormatKHR available_formats[],
     const size_t count)
 {
@@ -59,7 +59,7 @@ static VkSurfaceFormatKHR u_vk_choose_swap_surface_format(
     return available_formats[0];
 }
 
-static VkPresentModeKHR u_vk_choose_swap_present_mode(
+static VkPresentModeKHR vk_choose_swap_present_mode(
     const VkPresentModeKHR available_present_modes[],
     const size_t count)
 {
@@ -72,7 +72,7 @@ static VkPresentModeKHR u_vk_choose_swap_present_mode(
     return VK_PRESENT_MODE_FIFO_KHR;
 }
 
-static VkExtent2D u_vk_choose_swap_extent(const VkSurfaceCapabilitiesKHR* capabilities, uint32_t width, uint32_t height)
+static VkExtent2D vk_choose_swap_extent(const VkSurfaceCapabilitiesKHR* capabilities, uint32_t width, uint32_t height)
 {
     if (capabilities->currentExtent.width != UINT32_MAX) {
         return capabilities->currentExtent;
@@ -95,7 +95,7 @@ static VkExtent2D u_vk_choose_swap_extent(const VkSurfaceCapabilitiesKHR* capabi
     return actual_extent;
 }
 
-void u_vk_swap_chain_init(
+void vk_swap_chain_init(
     uint32_t width,
     uint32_t height,
     VkPhysicalDevice gpu,
@@ -108,13 +108,13 @@ void u_vk_swap_chain_init(
     VkSurfaceFormatKHR* swap_chain_surface_format,
     VkExtent2D* swap_chain_extent)
 {
-    UVkSwapChainSupportDetails swap_chain_support = u_vk_query_swap_chain_support(gpu, surface);
+    VkSwapChainSupportDetails swap_chain_support = vk_query_swap_chain_support(gpu, surface);
 
     const VkSurfaceFormatKHR surface_format =
-        u_vk_choose_swap_surface_format(swap_chain_support.formats, swap_chain_support.formats_count);
+        vk_choose_swap_surface_format(swap_chain_support.formats, swap_chain_support.formats_count);
     const VkPresentModeKHR present_mode =
-        u_vk_choose_swap_present_mode(swap_chain_support.present_modes, swap_chain_support.present_modes_count);
-    const VkExtent2D extent = u_vk_choose_swap_extent(&swap_chain_support.capabilities, width, height);
+        vk_choose_swap_present_mode(swap_chain_support.present_modes, swap_chain_support.present_modes_count);
+    const VkExtent2D extent = vk_choose_swap_extent(&swap_chain_support.capabilities, width, height);
 
     uint32_t image_count = swap_chain_support.capabilities.minImageCount + 1;
     if (swap_chain_support.capabilities.maxImageCount > 0 &&
@@ -147,7 +147,7 @@ void u_vk_swap_chain_init(
 
     ASSERT_VK(vkCreateSwapchainKHR(device, &create_info, nullptr, swap_chain));
 
-    u_vk_free_swap_chain_support_details(&swap_chain_support);
+    vk_free_swap_chain_support_details(&swap_chain_support);
 
     vkGetSwapchainImagesKHR(device, *swap_chain, &image_count, nullptr);
     *swap_chain_images = malloc(sizeof(VkImage) * image_count);
@@ -159,7 +159,7 @@ void u_vk_swap_chain_init(
     *swap_chain_extent = extent;
 }
 
-void u_vk_swap_chain_image_views_init(
+void vk_swap_chain_image_views_init(
     VkDevice device,
     const VkImage* swap_chain_images,
     uint32_t swap_chain_images_count,
@@ -172,7 +172,7 @@ void u_vk_swap_chain_image_views_init(
     ASSERT(*swap_chain_image_views);
 
     for (uint32_t i = 0; i < swap_chain_images_count; ++i) {
-        u_vk_image_view_init(
+        vk_image_view_init(
             device, swap_chain_images[i], swap_chain_surface_format->format, VK_IMAGE_ASPECT_COLOR_BIT, 1,
             &(*swap_chain_image_views)[i]);
 
@@ -184,7 +184,7 @@ void u_vk_swap_chain_image_views_init(
     }
 }
 
-void u_vk_swap_chain_image_views_fini(
+void vk_swap_chain_image_views_fini(
     VkDevice device,
     VkImageView* swap_chain_image_views[],
     uint32_t* swap_chain_image_views_count)

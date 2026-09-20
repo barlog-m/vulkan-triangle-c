@@ -3,7 +3,7 @@
 
 #include "rndr.h"
 
-void u_vk_swap_chain_init(
+void vk_swap_chain_init(
     uint32_t width,
     uint32_t height,
     VkPhysicalDevice gpu,
@@ -16,7 +16,7 @@ void u_vk_swap_chain_init(
     VkSurfaceFormatKHR* swap_chain_surface_format,
     VkExtent2D* swap_chain_extent);
 
-void u_vk_swap_chain_image_views_init(
+void vk_swap_chain_image_views_init(
     VkDevice device,
     const VkImage* swap_chain_images,
     uint32_t swap_chain_images_count,
@@ -24,7 +24,7 @@ void u_vk_swap_chain_image_views_init(
     VkImageView** swap_chain_image_views,
     uint32_t* swap_chain_image_views_count);
 
-void u_vk_swap_chain_image_views_fini(
+void vk_swap_chain_image_views_fini(
     VkDevice device,
     VkImageView** swap_chain_image_views,
     uint32_t* swap_chain_image_views_count);
