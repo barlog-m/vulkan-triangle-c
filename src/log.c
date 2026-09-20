@@ -10,7 +10,7 @@
 #include <string.h>
 #include <time.h>
 
-enum LOG_LEVEL g_log_level = 0;
+enum LOG_LEVEL g_log_level = LOG_LEVEL_ALL;
 
 #define CONSOLE_RED "\033[31m"
 #define CONSOLE_GREEN "\033[32m"
@@ -144,6 +144,8 @@ static int log_console_colors_enable(void)
 
 void log_msg(enum LOG_LEVEL lvl, const char* msg)
 {
+    if (lvl > g_log_level) return;
+
     const struct tm local_time = log_local_time_get();
 
     const int colorized =

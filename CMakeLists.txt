@@ -28,17 +28,24 @@ find_package(Vulkan REQUIRED)
 
 add_subdirectory(vendor/sdl EXCLUDE_FROM_ALL)
 
+add_library(vulkan_memory_allocator INTERFACE)
+target_include_directories(vulkan_memory_allocator SYSTEM INTERFACE vendor/vulkan_memory_allocator)
+
 set(APP_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
 file(GLOB_RECURSE SOURCES_C CONFIGURE_DEPENDS FOLLOW_SYMLINKS ${APP_SOURCE_DIR}/*.c)
+file(GLOB_RECURSE SOURCES_CPP CONFIGURE_DEPENDS FOLLOW_SYMLINKS ${APP_SOURCE_DIR}/*.cpp)
 
-set(SOURCES ${SOURCES_C})
+set(SOURCES ${SOURCES_C} ${SOURCES_CPP})
 
 set_source_files_properties(${SOURCES_C}   PROPERTIES LANGUAGE C)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/vendor/vulkan_memory_allocator
+)
 
 target_compile_options(${PROJECT_NAME} PRIVATE
     -Wall -Wextra
@@ -53,6 +60,7 @@ target_link_options(${PROJECT_NAME} PRIVATE
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
 target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan)
+target_link_libraries(${PROJECT_NAME} PRIVATE vulkan_memory_allocator)
 
 # Windows + Clang + Debug: app.exe needs clang_rt.asan_dynamic-<arch>.dll
 if(WIN32 AND CMAKE_C_COMPILER_ID MATCHES "Clang")

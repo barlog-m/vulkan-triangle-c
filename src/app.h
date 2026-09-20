@@ -3,8 +3,6 @@
 
 #include "SDL3/SDL.h"
 
-#include "rndr.h"
-
 typedef struct {
     SDL_Window *window;
     uint32_t width;

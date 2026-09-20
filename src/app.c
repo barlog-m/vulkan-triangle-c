@@ -4,6 +4,7 @@
 
 #include "log.h"
 #include "assert.h"
+#include "rndr.h"
 
 App g_app = {};
 
@@ -22,6 +23,8 @@ void app_init()
 
     SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
     SDL_ShowWindow(window);
+
+    rndr_init();
 
     g_app.is_running = true;
 }
@@ -70,6 +73,7 @@ void app_run()
 
 void app_fini()
 {
+    rndr_fini();
     SDL_DestroyWindow(g_app.window);
     SDL_Quit();
 }

@@ -7,4 +7,5 @@ Checks: >
     performance-*,
     portability-*,
     readability-*,
-    readability-function-cognitive-complexity
+    -readability-function-cognitive-complexity,
+    -bugprone-easily-swappable-parameters
