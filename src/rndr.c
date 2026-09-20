@@ -9,7 +9,6 @@ Rndr g_rndr = {};
 void rndr_init()
 {
     vk_device_init();
-
 }
 
 void rndr_fini()

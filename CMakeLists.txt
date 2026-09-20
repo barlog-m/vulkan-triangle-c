@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 4.2)
 
+if(WIN32 AND NOT DEFINED CMAKE_MSVC_RUNTIME_LIBRARY)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
+endif()
+
 if(NOT DEFINED CMAKE_C_COMPILER)
     set(CMAKE_C_COMPILER clang CACHE FILEPATH "" FORCE)
 endif()
@@ -52,6 +56,9 @@ target_compile_options(${PROJECT_NAME} PRIVATE
     $<$<CONFIG:Release>: -O3 -DNDEBUG -march=native>
     # $<$<CONFIG:Debug>: -O0 -g -fsanitize=address -Wpadded>
     $<$<CONFIG:Debug>: -O0 -g -fsanitize=address>
+)
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+    $<$<AND:$<PLATFORM_ID:Windows>,$<CXX_COMPILER_ID:Clang>,$<CONFIG:Debug>>:_ITERATOR_DEBUG_LEVEL=0>
 )
 target_link_options(${PROJECT_NAME} PRIVATE
     -fuse-ld=lld

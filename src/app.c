@@ -23,6 +23,7 @@ void app_init()
 
     SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
     SDL_ShowWindow(window);
+    g_app.window = window;
 
     rndr_init();
 
