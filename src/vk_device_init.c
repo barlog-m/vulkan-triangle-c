@@ -127,6 +127,13 @@ static void vk_create_instance(VkInstance* instance)
     create_info.ppEnabledExtensionNames = all_extensions;
 
     ASSERT_VK(vkCreateInstance(&create_info, nullptr, instance));
+
+#ifndef NDEBUG
+    if (is_debug_utils_supported) {
+        vk_setup_debug_utils(*instance);
+    }
+#endif
+
     free(all_extensions);
 }
 

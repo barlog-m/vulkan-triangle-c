@@ -15,6 +15,8 @@ void rndr_fini()
 {
     vkDeviceWaitIdle(g_rndr.device);
 
+    vkDestroyDevice(g_rndr.device, nullptr);
+
 #ifndef NDEBUG
     if (g_rndr.instance != VK_NULL_HANDLE) {
         vk_debug_utils_fini(g_rndr.instance);
