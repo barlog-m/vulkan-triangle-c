@@ -106,17 +106,19 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(
 {
     switch (msg_severity) {
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+            LOG_VK_DEBUG(callback_data->pMessage);
+            break;
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
-            LOG_DEBUG(callback_data->pMessage);
+            LOG_VK_INFO(callback_data->pMessage);
             break;
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
-            LOG_WARN(callback_data->pMessage);
+            LOG_VK_WARN(callback_data->pMessage);
             break;
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
-            LOG_ERROR(callback_data->pMessage);
+            LOG_VK_ERROR(callback_data->pMessage);
             break;
         default:
-            LOG_INFO(callback_data->pMessage);
+            LOG_VK_INFO(callback_data->pMessage);
             break;
     }
 

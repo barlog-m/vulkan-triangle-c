@@ -186,8 +186,9 @@ static bool vk_is_physical_device_suitable(VkPhysicalDevice gpu)
            device_properties2.properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&
            device_features2.features.geometryShader && device_features2.features.samplerAnisotropy &&
            vulkan11_features.shaderDrawParameters && vulkan12_features.bufferDeviceAddress &&
-           vulkan12_features.drawIndirectCount && vulkan14_features.hostImageCopy && vulkan14_features.pushDescriptor &&
-           unified_layouts_features.unifiedImageLayouts &&
+           vulkan12_features.drawIndirectCount && vulkan13_features.synchronization2 &&
+           vulkan13_features.dynamicRendering && vulkan14_features.hostImageCopy &&
+           vulkan14_features.pushDescriptor && unified_layouts_features.unifiedImageLayouts &&
            mesh_shader_features.taskShader && mesh_shader_features.meshShader;
 }
 

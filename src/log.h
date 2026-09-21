@@ -48,6 +48,11 @@ void log_msg(enum LOG_LEVEL lvl, const char* msg);
 #define LOG_WARN(msg) LOG(LOG_LEVEL_WARN, msg)
 #define LOG_ERROR(msg) LOG(LOG_LEVEL_ERROR, msg)
 
+#define LOG_VK_DEBUG(msg) log_msg(LOG_LEVEL_DEBUG, msg)
+#define LOG_VK_INFO(msg) log_msg(LOG_LEVEL_INFO, msg)
+#define LOG_VK_WARN(msg) log_msg(LOG_LEVEL_WARN, msg)
+#define LOG_VK_ERROR(msg) log_msg(LOG_LEVEL_ERROR, msg)
+
 #define LOG_MSG(lvl, msg1, msg2)                                                                  \
     do {                                                                                          \
         char _buf[LOG_MSG_LEN];                                                                   \

@@ -155,8 +155,9 @@ void log_msg(enum LOG_LEVEL lvl, const char* msg)
         1;
 #endif
 
+    const char* time_color = colorized ? CONSOLE_GRAY : "";
     const char* color = colorized ? log_color_by_level(lvl) : "";
-    const char* reset = colorized ? CONSOLE_RESET : "";
+    const char* color_reset = colorized ? CONSOLE_RESET : "";
 
     const char* lvl_str = log_level_to_string(lvl);
 
@@ -164,7 +165,7 @@ void log_msg(enum LOG_LEVEL lvl, const char* msg)
     strftime(time_string, sizeof(time_string), "%Y-%m-%d %H:%M:%S", &local_time);
 
     char line[LOG_MSG_LEN];
-    snprintf(line, sizeof(line), "%s %s%s %s%s\n", time_string, color, lvl_str, msg, reset);
+    snprintf(line, sizeof(line), "%s%s%s %s%s %s%s\n", time_color, time_string, color_reset, color, lvl_str, msg, color_reset);
 
     printf("%s", line);
 }
