@@ -182,14 +182,38 @@ static bool vk_is_physical_device_suitable(VkPhysicalDevice gpu)
     vkGetPhysicalDeviceProperties2(gpu, &device_properties2);
     vkGetPhysicalDeviceFeatures2(gpu, &device_features2);
 
-    return device_properties2.properties.apiVersion >= VK_API_VERSION_1_4 &&
-           device_properties2.properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&
-           device_features2.features.geometryShader && device_features2.features.samplerAnisotropy &&
-           vulkan11_features.shaderDrawParameters && vulkan12_features.bufferDeviceAddress &&
-           vulkan12_features.drawIndirectCount && vulkan13_features.synchronization2 &&
-           vulkan13_features.dynamicRendering && vulkan14_features.hostImageCopy &&
-           vulkan14_features.pushDescriptor && unified_layouts_features.unifiedImageLayouts &&
-           mesh_shader_features.taskShader && mesh_shader_features.meshShader;
+    return device_properties2.properties.apiVersion >= VK_API_VERSION_1_4
+        && device_features2.features.geometryShader
+        && device_features2.features.samplerAnisotropy
+        && vulkan11_features.shaderDrawParameters
+        && vulkan12_features.bufferDeviceAddress
+        && vulkan12_features.drawIndirectCount
+        && vulkan13_features.synchronization2
+        && vulkan13_features.dynamicRendering
+        && vulkan14_features.hostImageCopy
+        && vulkan14_features.pushDescriptor
+        && unified_layouts_features.unifiedImageLayouts
+        && mesh_shader_features.taskShader
+        && mesh_shader_features.meshShader;
+}
+
+static uint8_t vk_physical_device_type_score(VkPhysicalDevice gpu)
+{
+    VkPhysicalDeviceProperties device_properties = {};
+    vkGetPhysicalDeviceProperties(gpu, &device_properties);
+
+    switch (device_properties.deviceType) {
+        case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
+            return 4;
+        case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
+            return 3;
+        case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
+            return 2;
+        case VK_PHYSICAL_DEVICE_TYPE_CPU:
+            return 1;
+        default:
+            return 0;
+    }
 }
 
 static VkSampleCountFlagBits vk_get_max_usable_sample_count(VkPhysicalDevice gpu)
@@ -256,15 +280,23 @@ static void vk_pick_physical_device(VkInstance instance, VkSurfaceKHR surface, V
     vkEnumeratePhysicalDevices(instance, &device_count, devices);
 
     const size_t devices_count = sizeof(devices) / sizeof(devices[0]);
+    uint8_t best_score = 0;
     for (size_t device_num = 0; device_num < devices_count; ++device_num) {
-        if (vk_is_physical_device_suitable(devices[device_num]) && vk_is_physical_device_has_graphics_and_present_family(devices[device_num], surface)) {
+        if (!vk_is_physical_device_suitable(devices[device_num])
+            || !vk_is_physical_device_has_graphics_and_present_family(devices[device_num], surface)) {
+            continue;
+        }
+
+        const uint8_t score = vk_physical_device_type_score(devices[device_num]);
+
+        if (*gpu == VK_NULL_HANDLE || score > best_score) {
+            best_score = score;
             *gpu = devices[device_num];
-            *msaa_samples = vk_get_max_usable_sample_count(*gpu);
-            break;
         }
     }
 
     ASSERT(*gpu != VK_NULL_HANDLE);
+    *msaa_samples = vk_get_max_usable_sample_count(*gpu);
 }
 
 static void
@@ -313,7 +345,7 @@ vk_find_best_queue_families(VkPhysicalDevice gpu, VkSurfaceKHR surface, VkQueueF
         if (flags & VK_QUEUE_COMPUTE_BIT) {
             uint32_t score = queue_count;
             if (!(flags & VK_QUEUE_GRAPHICS_BIT)) {
-                score += 20;  // Prefer dedicated
+                score += 20;
             }
 
             if (!indices.has_compute || score > best_compute_score) {
@@ -327,7 +359,7 @@ vk_find_best_queue_families(VkPhysicalDevice gpu, VkSurfaceKHR surface, VkQueueF
         if (flags & VK_QUEUE_TRANSFER_BIT) {
             uint32_t score = queue_count;
             if (!(flags & VK_QUEUE_GRAPHICS_BIT) && !(flags & VK_QUEUE_COMPUTE_BIT)) {
-                score += 30;  // Prefer dedicated transfer
+                score += 30;
             }
 
             if (!indices.has_transfer || score > best_transfer_score) {
@@ -442,7 +474,7 @@ static void vk_create_logical_device(
 
     ASSERT_VK(vkCreateDevice(gpu, &create_info, nullptr, device));
 
-    ASSERT(queue_family_indices->has_graphics);  // implies present-capable on this surface
+    ASSERT(queue_family_indices->has_graphics);
 
     vkGetDeviceQueue(*device, queue_family_indices->graphics_family, 0, graphics_queue);
 
