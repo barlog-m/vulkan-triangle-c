@@ -1,4 +1,4 @@
-#include "vk_init.h"
+#include "vk_init_rndr.h"
 
 #include <stdint.h>
 #include <stdio.h>
@@ -172,7 +172,7 @@ void vk_swap_chain_image_views_init(
     ASSERT(*swap_chain_image_views);
 
     for (uint32_t i = 0; i < swap_chain_images_count; ++i) {
-        vk_image_view_init(
+        vk_create_image_view(
             device, swap_chain_images[i], swap_chain_surface_format->format, VK_IMAGE_ASPECT_COLOR_BIT, 1,
             &(*swap_chain_image_views)[i]);
 

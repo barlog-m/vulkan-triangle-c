@@ -2,7 +2,7 @@
 
 #include "assert.h"
 
-void vk_buffer_init(
+void vk_create_buffer(
     VmaAllocator vma,
     VkDeviceSize size,
     VkBufferUsageFlags usage,
@@ -32,7 +32,7 @@ void vk_buffer_init(
     }
 }
 
-void vk_buffer_copy(
+void vk_copy_buffer(
     VkDevice device,
     VkQueue graphics_queue,
     VkCommandPool command_pool,
@@ -130,7 +130,7 @@ void vk_transition_image_layout(
     vkCmdPipelineBarrier2(command_buffer, &dependency_info);
 }
 
-void vk_image_init(
+void vk_create_image(
     VmaAllocator vma,
     uint32_t width,
     uint32_t height,
@@ -163,7 +163,7 @@ void vk_image_init(
     ASSERT_VK(vmaCreateImage(vma, &image_info, &alloc_create_info, image, allocation, nullptr));
 }
 
-void vk_image_view_init(
+void vk_create_image_view(
     VkDevice device,
     VkImage image,
     VkFormat image_format,

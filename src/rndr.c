@@ -1,7 +1,7 @@
 #include "rndr.h"
 
 #include "vk_debug.h"
-#include "vk_device_init.h"
+#include "vk_init_core.h"
 #include "SDL3/SDL_vulkan.h"
 
 Rndr g_rndr = {};

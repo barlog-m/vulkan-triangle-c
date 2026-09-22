@@ -1,4 +1,4 @@
-#include "vk_device_init.h"
+#include "vk_init_core.h"
 
 #include <stdio.h>
 #include <stdlib.h>

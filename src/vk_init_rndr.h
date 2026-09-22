@@ -1,5 +1,5 @@
-#ifndef VK_INIT_H
-#define VK_INIT_H
+#ifndef VK_INIT_RNDR_H
+#define VK_INIT_RNDR_H
 
 #include "rndr.h"
 
@@ -29,4 +29,4 @@ void vk_swap_chain_image_views_fini(
     VkImageView** swap_chain_image_views,
     uint32_t* swap_chain_image_views_count);
 
-#endif  // VK_INIT_H
+#endif  // VK_INIT_RNDR_H

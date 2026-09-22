@@ -5,7 +5,7 @@
 #include <vk_mem_alloc.h>
 #include <vulkan/vulkan_core.h>
 
-void vk_buffer_init(
+void vk_create_buffer(
     VmaAllocator vma,
     VkDeviceSize size,
     VkBufferUsageFlags usage,
@@ -15,7 +15,7 @@ void vk_buffer_init(
     VmaAllocation* allocation,
     VmaAllocationInfo* alloc_info_out);
 
-void vk_buffer_copy(
+void vk_copy_buffer(
     VkDevice device,
     VkQueue graphics_queue,
     VkCommandPool command_pool,
@@ -35,7 +35,7 @@ void vk_transition_image_layout(
     VkImageAspectFlags image_aspect_flags,
     uint32_t mip_levels);
 
-void vk_image_init(
+void vk_create_image(
     VmaAllocator vma,
     uint32_t width,
     uint32_t height,
@@ -47,7 +47,7 @@ void vk_image_init(
     VkImage* image,
     VmaAllocation* allocation);
 
-void vk_image_view_init(
+void vk_create_image_view(
     VkDevice device,
     VkImage image,
     VkFormat image_format,
