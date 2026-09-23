@@ -2,8 +2,8 @@
 .idea/
 .vscode/
 
-bin/
-build*/
-cmake*/
+/bin/
+/build*/
+/cmake*/
 
 *.spv
