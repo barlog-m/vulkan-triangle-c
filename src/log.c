@@ -46,7 +46,7 @@ static enum LOG_LEVEL log_string_to_level(const char* log_lvl)
         return LOG_LEVEL_FATAL;
     }
     if (strcmp("ERROR", log_lvl) == 0) {
-        return ERROR;
+        return LOG_LEVEL_ERROR;
     }
     if (strcmp("WARN", log_lvl) == 0) {
         return LOG_LEVEL_WARN;
