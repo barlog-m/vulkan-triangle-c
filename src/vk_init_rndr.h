@@ -99,4 +99,6 @@ void vk_graphics_pipeline_init(
 
 void vk_command_pool_init(VkDevice device, uint32_t graphics_queue_family_index, VkCommandPool* command_pool);
 
+void vk_command_buffers_init(VkDevice device, VkCommandPool command_pool, VkCommandBuffer* command_buffers);
+
 #endif  // VK_INIT_RNDR_H

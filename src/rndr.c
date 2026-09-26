@@ -24,14 +24,6 @@ void rndr_init()
         g_rndr.device, g_rndr.swap_chain_images, g_rndr.swap_chain_images_count, &g_rndr.swap_chain_surface_format,
         &g_rndr.swap_chain_image_views, &g_rndr.swap_chain_image_views_count);
 
-    vk_descriptor_set_layout_init(g_rndr.device, &g_rndr.descriptor_set_layout);
-
-    vk_graphics_pipeline_init(
-        g_asset_locator.shaders_dir, g_rndr.gpu, g_rndr.device, &g_rndr.swap_chain_surface_format,
-        g_rndr.descriptor_set_layout, g_rndr.msaa_samples, &g_rndr.pipeline_layout, &g_rndr.graphics_pipeline);
-
-    vk_command_pool_init(g_rndr.device, g_rndr.queue_family_indices.graphics_family, &g_rndr.command_pool);
-
     g_rndr.color_format = g_rndr.swap_chain_surface_format.format;
 
     vk_color_resources_init(
@@ -43,17 +35,23 @@ void rndr_init()
     vk_depth_resources_init(
         g_rndr.gpu, g_rndr.device, g_rndr.vma, &g_rndr.swap_chain_extent, g_rndr.msaa_samples, &g_rndr.depth_image,
         &g_rndr.depth_image_alloc, &g_rndr.depth_image_view);
+    
+    vk_descriptor_set_layout_init(g_rndr.device, &g_rndr.descriptor_set_layout);
+
+    vk_graphics_pipeline_init(
+        g_asset_locator.shaders_dir, g_rndr.gpu, g_rndr.device, &g_rndr.swap_chain_surface_format,
+        g_rndr.descriptor_set_layout, g_rndr.msaa_samples, &g_rndr.pipeline_layout, &g_rndr.graphics_pipeline);
+    
+    vk_command_pool_init(g_rndr.device, g_rndr.queue_family_indices.graphics_family, &g_rndr.command_pool);
+    
+    vk_command_buffers_init(g_rndr.device, g_rndr.command_pool, g_rndr.command_buffers);
+    
+    vk_prepare_image_layouts(g_rndr.device, g_rndr.graphics_queue, g_rndr.command_pool, g_rndr.color_image, g_rndr.depth_image);
 }
 
 void rndr_fini()
 {
     vkDeviceWaitIdle(g_rndr.device);
-
-    vk_image_resources_fini(
-        g_rndr.device, g_rndr.vma, &g_rndr.depth_image, &g_rndr.depth_image_alloc, &g_rndr.depth_image_view);
-
-    vk_image_resources_fini(
-        g_rndr.device, g_rndr.vma, &g_rndr.color_image, &g_rndr.color_image_alloc, &g_rndr.color_image_view);
 
     vkDestroyCommandPool(g_rndr.device, g_rndr.command_pool, nullptr);
 
@@ -61,6 +59,12 @@ void rndr_fini()
     vkDestroyPipelineLayout(g_rndr.device, g_rndr.pipeline_layout, nullptr);
 
     vkDestroyDescriptorSetLayout(g_rndr.device, g_rndr.descriptor_set_layout, nullptr);
+
+    vk_image_resources_fini(
+        g_rndr.device, g_rndr.vma, &g_rndr.depth_image, &g_rndr.depth_image_alloc, &g_rndr.depth_image_view);
+
+    vk_image_resources_fini(
+        g_rndr.device, g_rndr.vma, &g_rndr.color_image, &g_rndr.color_image_alloc, &g_rndr.color_image_view);
 
     vk_swap_chain_image_views_fini(g_rndr.device, &g_rndr.swap_chain_image_views, &g_rndr.swap_chain_image_views_count);
 

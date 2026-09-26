@@ -55,4 +55,11 @@ void vk_create_image_view(
     uint32_t mip_levels,
     VkImageView* image_view);
 
+void vk_prepare_image_layouts(
+    VkDevice device,
+    VkQueue queue,
+    VkCommandPool command_pool,
+    VkImage color_image,
+    VkImage depth_image);
+
 #endif  // VK_UTILS_H

@@ -44,15 +44,6 @@ typedef struct {
     VkSurfaceFormatKHR swap_chain_surface_format;
     VkExtent2D swap_chain_extent;
 
-    VkDescriptorSetLayout descriptor_set_layout;
-    VkPipelineLayout pipeline_layout;
-    VkPipeline graphics_pipeline;
-
-    VkCommandPool command_pool;
-    VkCommandBuffer command_buffers[MAX_FRAMES_IN_FLIGHT];
-    VkCommandPool compute_command_pool;
-    VkCommandBuffer compute_command_buffers[MAX_FRAMES_IN_FLIGHT];
-
     VkImage depth_image;
     VmaAllocation depth_image_alloc;
     VkImageView depth_image_view;
@@ -62,6 +53,16 @@ typedef struct {
     VmaAllocation color_image_alloc;
     VkImageView color_image_view;
     VkFormat color_format;
+    
+    VkDescriptorSetLayout descriptor_set_layout;
+    VkPipelineLayout pipeline_layout;
+    VkPipeline graphics_pipeline;
+
+    VkCommandPool command_pool;
+    VkCommandBuffer command_buffers[MAX_FRAMES_IN_FLIGHT];
+    VkCommandPool compute_command_pool;
+    VkCommandBuffer compute_command_buffers[MAX_FRAMES_IN_FLIGHT];
+
 } Rndr;
 
 extern Rndr g_rndr;

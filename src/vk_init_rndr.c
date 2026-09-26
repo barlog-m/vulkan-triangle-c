@@ -578,3 +578,15 @@ void vk_command_pool_init(VkDevice device, uint32_t graphics_queue_family_index,
 
     ASSERT_VK(vkCreateCommandPool(device, &pool_info, nullptr, command_pool));
 }
+
+void vk_command_buffers_init(VkDevice device, VkCommandPool command_pool, VkCommandBuffer* command_buffers)
+{
+    const VkCommandBufferAllocateInfo alloc_info = {
+        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+        .commandPool = command_pool,
+        .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+        .commandBufferCount = MAX_FRAMES_IN_FLIGHT,
+    };
+
+    ASSERT_VK(vkAllocateCommandBuffers(device, &alloc_info, command_buffers));
+}
