@@ -2,8 +2,8 @@
 
 #include <SDL3/SDL.h>
 
-#include "log.h"
 #include "assert.h"
+#include "asset_locator.h"
 #include "rndr.h"
 
 App g_app = {};
@@ -25,6 +25,7 @@ void app_init()
     SDL_ShowWindow(window);
     g_app.window = window;
 
+    asset_locator_init();
     rndr_init();
 
     g_app.is_running = true;
@@ -75,6 +76,7 @@ void app_run()
 void app_fini()
 {
     rndr_fini();
+    asset_locator_fini();
     SDL_DestroyWindow(g_app.window);
     SDL_Quit();
 }

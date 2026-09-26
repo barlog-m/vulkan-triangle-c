@@ -67,6 +67,11 @@ void log_msg(enum LOG_LEVEL lvl, const char* msg);
         log_msg(lvl, _buf);                                                                                 \
     } while (0)
 
+#define LOG_ERRNO_DEBUG(msg) LOG_ERRNO(LOG_LEVEL_DEBUG, msg)
+#define LOG_ERRNO_INFO(msg) LOG_ERRNO(LOG_LEVEL_INFO, msg)
+#define LOG_ERRNO_WARN(msg) LOG_ERRNO(LOG_LEVEL_WARN, msg)
+#define LOG_ERRNO_ERROR(msg) LOG_ERRNO(LOG_LEVEL_ERROR, msg)
+
 #define LOG_FATAL(msg)                                                                 \
     do {                                                                               \
         char _buf[LOG_MSG_LEN];                                                        \

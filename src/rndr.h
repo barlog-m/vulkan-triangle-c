@@ -3,6 +3,10 @@
 
 #include <vulkan/vulkan_core.h>
 
+#include "constants.h"
+#include "vertex.h"
+#include "vk_utils.h"
+
 typedef struct {
     VkSurfaceCapabilitiesKHR capabilities;
     VkSurfaceFormatKHR* formats;
@@ -24,21 +28,40 @@ typedef struct {
     VkInstance instance;
     VkPhysicalDevice gpu;
     VkDevice device;
+    VmaAllocator vma;
     VkSurfaceKHR surface;
-    VkSwapchainKHR swap_chain;
+    VkSampleCountFlagBits msaa_samples;
+
     VkQueue graphics_queue;
     VkQueue compute_queue;
     VkQueueFamilyIndices queue_family_indices;
+
+    VkSwapchainKHR swap_chain;
     VkImage* swap_chain_images;
     uint32_t swap_chain_images_count;
+    VkImageView* swap_chain_image_views;
     uint32_t swap_chain_image_views_count;
     VkSurfaceFormatKHR swap_chain_surface_format;
     VkExtent2D swap_chain_extent;
-    VkImageView* swap_chain_image_views;
+
     VkDescriptorSetLayout descriptor_set_layout;
     VkPipelineLayout pipeline_layout;
     VkPipeline graphics_pipeline;
-    VkSampleCountFlagBits msaa_samples;
+
+    VkCommandPool command_pool;
+    VkCommandBuffer command_buffers[MAX_FRAMES_IN_FLIGHT];
+    VkCommandPool compute_command_pool;
+    VkCommandBuffer compute_command_buffers[MAX_FRAMES_IN_FLIGHT];
+
+    VkImage depth_image;
+    VmaAllocation depth_image_alloc;
+    VkImageView depth_image_view;
+    VkFormat depth_format;
+
+    VkImage color_image;
+    VmaAllocation color_image_alloc;
+    VkImageView color_image_view;
+    VkFormat color_format;
 } Rndr;
 
 extern Rndr g_rndr;

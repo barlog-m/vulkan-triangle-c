@@ -35,6 +35,10 @@ add_subdirectory(vendor/sdl EXCLUDE_FROM_ALL)
 add_library(vulkan_memory_allocator INTERFACE)
 target_include_directories(vulkan_memory_allocator SYSTEM INTERFACE vendor/vulkan_memory_allocator)
 
+file(GLOB_RECURSE CGLM_SOURCES CONFIGURE_DEPENDS vendor/cglm/src/*.c)
+add_library(cglm STATIC ${CGLM_SOURCES})
+target_include_directories(cglm SYSTEM PUBLIC vendor/cglm/include)
+
 set(APP_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
 file(GLOB_RECURSE SOURCES_C CONFIGURE_DEPENDS FOLLOW_SYMLINKS ${APP_SOURCE_DIR}/*.c)
@@ -68,6 +72,7 @@ target_link_options(${PROJECT_NAME} PRIVATE
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
 target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan)
 target_link_libraries(${PROJECT_NAME} PRIVATE vulkan_memory_allocator)
+target_link_libraries(${PROJECT_NAME} PRIVATE cglm)
 
 # Windows + Clang + Debug: app.exe needs clang_rt.asan_dynamic-<arch>.dll
 if(WIN32 AND CMAKE_C_COMPILER_ID MATCHES "Clang")

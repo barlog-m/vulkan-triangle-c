@@ -1,7 +1,7 @@
 #ifndef APP_H
 #define APP_H
 
-#include "SDL3/SDL.h"
+#include "SDL3/SDL_video.h"
 
 typedef struct {
     SDL_Window *window;
