@@ -62,4 +62,22 @@ void vk_prepare_image_layouts(
     VkImage color_image,
     VkImage depth_image);
 
+void vk_buffer_init(
+    VmaAllocator vma,
+    VkDeviceSize size,
+    VkBufferUsageFlags usage,
+    VmaMemoryUsage memory_usage,
+    VmaAllocationCreateFlags alloc_flags,
+    VkBuffer* buffer,
+    VmaAllocation* allocation,
+    VmaAllocationInfo* alloc_info);
+
+void vk_buffer_copy(
+    VkDevice device,
+    VkQueue graphics_queue,
+    VkCommandPool command_pool,
+    VkBuffer src_buffer,
+    VkBuffer dst_buffer,
+    VkDeviceSize size);
+
 #endif  // VK_UTILS_H

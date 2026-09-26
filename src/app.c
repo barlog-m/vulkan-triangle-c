@@ -8,6 +8,8 @@
 
 App g_app = {};
 
+static Mesh mesh;
+
 void app_init()
 {
     ASSERT_SDL(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS));
@@ -27,6 +29,7 @@ void app_init()
 
     asset_locator_init();
     rndr_init();
+    mesh_init(&mesh);
 
     g_app.is_running = true;
 }
@@ -68,13 +71,14 @@ void app_run()
             }
         }
 
-        // render frame here...
+        rndr_draw_frame(&mesh);
         SDL_Delay(16);
     }
 }
 
 void app_fini()
 {
+    mesh_fini(&mesh);
     rndr_fini();
     asset_locator_fini();
     SDL_DestroyWindow(g_app.window);

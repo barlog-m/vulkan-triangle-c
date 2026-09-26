@@ -101,4 +101,16 @@ void vk_command_pool_init(VkDevice device, uint32_t graphics_queue_family_index,
 
 void vk_command_buffers_init(VkDevice device, VkCommandPool command_pool, VkCommandBuffer* command_buffers);
 
+void vk_sync_objects_init(
+    VkDevice device,
+    VkSemaphore image_available_semaphores[],
+    VkSemaphore render_finished_semaphores[],
+    VkSemaphore* render_timeline);
+
+void vk_sync_objects_fini(
+    VkDevice device,
+    VkSemaphore image_available_semaphores[],
+    VkSemaphore render_finished_semaphores[],
+    VkSemaphore render_timeline);
+
 #endif  // VK_INIT_RNDR_H

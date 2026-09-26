@@ -590,3 +590,50 @@ void vk_command_buffers_init(VkDevice device, VkCommandPool command_pool, VkComm
 
     ASSERT_VK(vkAllocateCommandBuffers(device, &alloc_info, command_buffers));
 }
+
+void vk_sync_objects_init(
+    VkDevice device,
+    VkSemaphore image_available_semaphores[],
+    VkSemaphore render_finished_semaphores[],
+    VkSemaphore* render_timeline)
+{
+    const VkSemaphoreCreateInfo binary_info = {
+        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+    };
+
+    const VkSemaphoreTypeCreateInfo timeline_type_info = {
+        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO,
+        .semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE,
+        .initialValue = 0,
+    };
+    const VkSemaphoreCreateInfo timeline_info = {
+        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+        .pNext = &timeline_type_info,
+    };
+
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        ASSERT_VK(vkCreateSemaphore(device, &binary_info, nullptr, &image_available_semaphores[i]));
+    }
+
+    for (size_t i = 0; i < MAX_SWAPCHAIN_IMAGES; i++) {
+        ASSERT_VK(vkCreateSemaphore(device, &binary_info, nullptr, &render_finished_semaphores[i]));
+    }
+
+    ASSERT_VK(vkCreateSemaphore(device, &timeline_info, nullptr, render_timeline));
+}
+
+void vk_sync_objects_fini(
+    VkDevice device,
+    VkSemaphore image_available_semaphores[],
+    VkSemaphore render_finished_semaphores[],
+    VkSemaphore render_timeline)
+{
+    vkDestroySemaphore(device, render_timeline, nullptr);
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        vkDestroySemaphore(device, image_available_semaphores[i], nullptr);
+    }
+    for (size_t i = 0; i < MAX_SWAPCHAIN_IMAGES; i++) {
+        vkDestroySemaphore(device, render_finished_semaphores[i], nullptr);
+    }
+}
+

@@ -4,6 +4,7 @@
 #include <vulkan/vulkan_core.h>
 
 #include "constants.h"
+#include "mesh.h"
 #include "vertex.h"
 #include "vk_utils.h"
 
@@ -62,12 +63,18 @@ typedef struct {
     VkCommandBuffer command_buffers[MAX_FRAMES_IN_FLIGHT];
     VkCommandPool compute_command_pool;
     VkCommandBuffer compute_command_buffers[MAX_FRAMES_IN_FLIGHT];
-
+    
+    VkSemaphore image_available_semaphores[MAX_FRAMES_IN_FLIGHT];
+    VkSemaphore render_finished_semaphores[MAX_SWAPCHAIN_IMAGES];
+    VkSemaphore render_timeline_semaphore;
+    
+    uint32_t current_frame_index;
 } Rndr;
 
 extern Rndr g_rndr;
 
 void rndr_init();
 void rndr_fini();
+void rndr_draw_frame(const Mesh* mesh);
 
 #endif
