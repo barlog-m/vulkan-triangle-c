@@ -28,23 +28,11 @@ void vk_swap_chain_fini(
     VkImageView* swap_chain_image_views[],
     uint32_t* swap_chain_image_views_count);
 
-void vk_swap_chain_images_fini(
-    VkDevice device,
-    VkImage* swap_chain_images[],
-    uint32_t* swap_chain_images_count,
-    VkImageView* swap_chain_image_views[],
-    uint32_t* swap_chain_image_views_count);
-
 void vk_swap_chain_image_views_init(
     VkDevice device,
     const VkImage* swap_chain_images,
     uint32_t swap_chain_images_count,
     const VkSurfaceFormatKHR* swap_chain_surface_format,
-    VkImageView** swap_chain_image_views,
-    uint32_t* swap_chain_image_views_count);
-
-void vk_swap_chain_image_views_fini(
-    VkDevice device,
     VkImageView** swap_chain_image_views,
     uint32_t* swap_chain_image_views_count);
 

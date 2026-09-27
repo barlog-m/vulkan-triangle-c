@@ -76,11 +76,8 @@ void rndr_fini()
     vk_image_resources_fini(
         g_rndr.device, g_rndr.vma, &g_rndr.color_image, &g_rndr.color_image_alloc, &g_rndr.color_image_view);
 
-    vk_swap_chain_image_views_fini(g_rndr.device, &g_rndr.swap_chain_image_views, &g_rndr.swap_chain_image_views_count);
-
-    vk_swap_chain_fini(
-        g_rndr.device, g_rndr.swap_chain, &g_rndr.swap_chain_images, &g_rndr.swap_chain_images_count,
-        &g_rndr.swap_chain_image_views, &g_rndr.swap_chain_image_views_count);
+    vk_swap_chain_fini(g_rndr.device, g_rndr.swap_chain, &g_rndr.swap_chain_images, &g_rndr.swap_chain_image_views_count,
+        &g_rndr.swap_chain_image_views, &g_rndr.swap_chain_image_views_count); 
 
     vmaDestroyAllocator(g_rndr.vma);
 
@@ -100,17 +97,17 @@ static void rndr_recreate_swap_chain()
 {
     vkDeviceWaitIdle(g_rndr.device);
 
+    VkSwapchainKHR old_swap_chain = g_rndr.swap_chain;
+    
     vk_image_resources_fini(
         g_rndr.device, g_rndr.vma, &g_rndr.depth_image, &g_rndr.depth_image_alloc, &g_rndr.depth_image_view);
 
     vk_image_resources_fini(
         g_rndr.device, g_rndr.vma, &g_rndr.color_image, &g_rndr.color_image_alloc, &g_rndr.color_image_view);
 
-    vk_swap_chain_images_fini(
-        g_rndr.device, &g_rndr.swap_chain_images, &g_rndr.swap_chain_images_count, &g_rndr.swap_chain_image_views,
-        &g_rndr.swap_chain_image_views_count);
+    vk_swap_chain_fini(g_rndr.device, g_rndr.swap_chain, &g_rndr.swap_chain_images, &g_rndr.swap_chain_image_views_count,
+        &g_rndr.swap_chain_image_views, &g_rndr.swap_chain_image_views_count); 
 
-    VkSwapchainKHR old_swap_chain = g_rndr.swap_chain;
     g_rndr.swap_chain = VK_NULL_HANDLE;
 
     vk_swap_chain_init(

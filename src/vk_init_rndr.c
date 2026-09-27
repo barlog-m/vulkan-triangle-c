@@ -185,23 +185,19 @@ void vk_swap_chain_fini(
     VkImageView* swap_chain_image_views[],
     uint32_t* swap_chain_image_views_count)
 {
-    vk_swap_chain_images_fini(
-        device, swap_chain_images, swap_chain_images_count, swap_chain_image_views, swap_chain_image_views_count);
-    vkDestroySwapchainKHR(device, swap_chain, nullptr);
-}
-
-void vk_swap_chain_images_fini(
-    VkDevice device,
-    VkImage* swap_chain_images[],
-    uint32_t* swap_chain_images_count,
-    VkImageView* swap_chain_image_views[],
-    uint32_t* swap_chain_image_views_count)
-{
-    vk_swap_chain_image_views_fini(device, swap_chain_image_views, swap_chain_image_views_count);
+    for (size_t i = 0; i < *swap_chain_image_views_count; i++) {
+        vkDestroyImageView(device, *swap_chain_image_views[i], nullptr);
+    }
+   
+    free(*swap_chain_image_views);
+    *swap_chain_image_views = nullptr;
+    *swap_chain_image_views_count = 0;
 
     free(*swap_chain_images);
     *swap_chain_images = nullptr;
     *swap_chain_images_count = 0;
+    
+    vkDestroySwapchainKHR(device, swap_chain, nullptr);
 }
 
 void vk_swap_chain_image_views_init(
@@ -227,20 +223,6 @@ void vk_swap_chain_image_views_init(
         vk_set_object_name(device, VK_OBJECT_TYPE_IMAGE_VIEW, (uint64_t)(*swap_chain_image_views)[i], object_name);
 #endif
     }
-}
-
-void vk_swap_chain_image_views_fini(
-    VkDevice device,
-    VkImageView* swap_chain_image_views[],
-    uint32_t* swap_chain_image_views_count)
-{
-    for (size_t i = 0; i < *swap_chain_image_views_count; i++) {
-        vkDestroyImageView(device, (*swap_chain_image_views)[i], nullptr);
-    }
-
-    free(*swap_chain_image_views);
-    *swap_chain_image_views = nullptr;
-    *swap_chain_image_views_count = 0;
 }
 
 void vk_find_supported_format(
