@@ -69,6 +69,7 @@ typedef struct {
     VkSemaphore render_timeline_semaphore;
     
     uint32_t current_frame_index;
+    uint64_t frame_number;
 } Rndr;
 
 extern Rndr g_rndr;

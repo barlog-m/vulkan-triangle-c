@@ -13,6 +13,14 @@
         }                    \
     } while (0)
 
+#define ASSERT_MSG(expr, msg) \
+    do {                      \
+        if (!(expr)) {        \
+            LOG_FATAL(msg);   \
+            abort();          \
+        }                     \
+    } while (0)
+
 #define ASSERT_VK(expr)          \
     do {                         \
         if (expr != VK_SUCCESS) {\
