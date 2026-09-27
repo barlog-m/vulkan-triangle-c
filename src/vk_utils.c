@@ -271,10 +271,7 @@ void vk_buffer_init(
         .usage = memory_usage,
     };
 
-    VmaAllocationInfo local_alloc_info = {};
-    ASSERT_VK(vmaCreateBuffer(vma, &buffer_info, &alloc_create_info, buffer, allocation, &local_alloc_info));
-
-    *alloc_info = local_alloc_info;
+    ASSERT_VK(vmaCreateBuffer(vma, &buffer_info, &alloc_create_info, buffer, allocation, alloc_info));
 }
 
 void vk_buffer_copy(
