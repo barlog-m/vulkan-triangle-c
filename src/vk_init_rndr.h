@@ -28,6 +28,13 @@ void vk_swap_chain_fini(
     VkImageView* swap_chain_image_views[],
     uint32_t* swap_chain_image_views_count);
 
+void vk_swap_chain_image_resources_clean(
+    VkDevice device,
+    VkImage* swap_chain_images[],
+    uint32_t* swap_chain_images_count,
+    VkImageView* swap_chain_image_views[],
+    uint32_t* swap_chain_image_views_count);
+
 void vk_swap_chain_image_views_init(
     VkDevice device,
     const VkImage* swap_chain_images,

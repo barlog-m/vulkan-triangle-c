@@ -21,9 +21,10 @@ void app_init()
     
     int width = 0;
     int height = 0;
-    SDL_GetWindowSize(window, &width, &height);
+    SDL_GetWindowSizeInPixels(window, &width, &height);
     g_app.width  = (uint32_t)width;
     g_app.height = (uint32_t)height;
+    g_app.is_resized = false;
     
     g_app.window = window;
     
