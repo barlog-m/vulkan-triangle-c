@@ -128,6 +128,9 @@ static void rndr_recreate_swap_chain()
     vk_depth_resources_init(
         g_rndr.gpu, g_rndr.device, g_rndr.vma, &g_rndr.swap_chain_extent, g_rndr.msaa_samples, &g_rndr.depth_image,
         &g_rndr.depth_image_alloc, &g_rndr.depth_image_view);
+    
+    vk_prepare_image_layouts(
+        g_rndr.device, g_rndr.graphics_queue, g_rndr.command_pool, g_rndr.color_image, g_rndr.depth_image);
 }
 
 static void rndr_record_command_buffer(VkCommandBuffer command_buffer, uint32_t image_index, const Mesh* mesh)
