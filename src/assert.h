@@ -21,12 +21,12 @@
         }                     \
     } while (0)
 
-#define ASSERT_VK(expr)          \
-    do {                         \
-        if (expr != VK_SUCCESS) {\
-            LOG_FATAL(#expr);    \
-            abort();             \
-        }                        \
+#define ASSERT_VK(expr)            \
+    do {                           \
+        if ((expr) != VK_SUCCESS) {\
+            LOG_FATAL(#expr);      \
+            abort();               \
+        }                          \
     } while (0)
 
 #define ASSERT_SDL(expr)                         \

@@ -13,7 +13,7 @@ void vk_create_buffer(
     VmaAllocationCreateFlags alloc_flags,
     VkBuffer* buffer,
     VmaAllocation* allocation,
-    VmaAllocationInfo* alloc_info_out);
+    VmaAllocationInfo* alloc_info);
 
 void vk_copy_buffer(
     VkDevice device,

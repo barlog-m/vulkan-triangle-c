@@ -79,7 +79,7 @@ static VkExtent2D vk_choose_swap_extent(const VkSurfaceCapabilitiesKHR* capabili
         return capabilities->currentExtent;
     }
 
-    VkExtent2D actual_extent = { width, height };
+    VkExtent2D actual_extent = { .width = width, .height = height };
 
     if (actual_extent.width < capabilities->minImageExtent.width) {
         actual_extent.width = capabilities->minImageExtent.width;
@@ -137,14 +137,12 @@ void vk_swap_chain_init(
         .imageUsage =
             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
         .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
+        .preTransform = swap_chain_support.capabilities.currentTransform,
+        .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+        .presentMode = present_mode,
+        .clipped = VK_TRUE,
+        .oldSwapchain = old_swap_chain,
     };
-
-    create_info.preTransform = swap_chain_support.capabilities.currentTransform;
-    create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-    create_info.presentMode = present_mode;
-    create_info.clipped = VK_TRUE;
-
-    create_info.oldSwapchain = old_swap_chain;
 
     ASSERT_VK(vkCreateSwapchainKHR(device, &create_info, nullptr, swap_chain));
 
@@ -168,8 +166,9 @@ void vk_swap_chain_fini(
     VkImageView* swap_chain_image_views[],
     uint32_t* swap_chain_image_views_count)
 {
-    vk_swap_chain_image_resources_clean(device, swap_chain_images, swap_chain_images_count, swap_chain_image_views, swap_chain_image_views_count);
-    
+    vk_swap_chain_image_resources_clean(
+        device, swap_chain_images, swap_chain_images_count, swap_chain_image_views, swap_chain_image_views_count);
+
     vkDestroySwapchainKHR(device, swap_chain, nullptr);
 }
 
@@ -183,7 +182,7 @@ void vk_swap_chain_image_resources_clean(
     for (size_t i = 0; i < *swap_chain_image_views_count; i++) {
         vkDestroyImageView(device, (*swap_chain_image_views)[i], nullptr);
     }
-   
+
     free(*swap_chain_image_views);
     *swap_chain_image_views = nullptr;
     *swap_chain_image_views_count = 0;
@@ -537,8 +536,7 @@ void vk_graphics_pipeline_init(
         .basePipelineIndex = -1,
     };
 
-    ASSERT_VK(
-        vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipeline_create_info, nullptr, graphics_pipeline));
+    ASSERT_VK(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipeline_create_info, nullptr, graphics_pipeline));
 
     vkDestroyShaderModule(device, shader_module, nullptr);
 }
@@ -611,4 +609,3 @@ void vk_sync_objects_fini(
         vkDestroySemaphore(device, render_finished_semaphores[i], nullptr);
     }
 }
-
