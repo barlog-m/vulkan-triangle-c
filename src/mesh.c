@@ -13,6 +13,8 @@ void mesh_fini(Mesh* mesh, const Rndr* rndr)
 
     vmaDestroyBuffer(rndr->vma, mesh->index_buffer, mesh->index_buffer_alloc);
     vmaDestroyBuffer(rndr->vma, mesh->vertex_buffer, mesh->vertex_buffer_alloc);
+    
+    free(mesh);
 }
 
 static void mesh_create_vertex_buffer(

@@ -34,10 +34,9 @@ void window_update_size(Window* self)
     SDL_GetWindowSizeInPixels(self->sdl_window, &width, &height);
     self->width = (uint32_t)width;
     self->height = (uint32_t)height;
-    self->is_resized = true;
 }
 
-bool window_is_zero_size(Window* self)
+bool window_is_zero_size(const Window* self)
 {
-    
+    return self->width == 0 || self->height == 0;
 }

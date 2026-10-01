@@ -232,7 +232,6 @@ static void rndr_record_command_buffer(Rndr* self, VkCommandBuffer command_buffe
 void rndr_draw_frame(Rndr* self, const Mesh* mesh)
 {
     if (window_is_zero_size(self->window)) {
-        self->window->is_resized = true;
         return;
     }
 
@@ -250,16 +249,12 @@ void rndr_draw_frame(Rndr* self, const Mesh* mesh)
     };
     ASSERT_VK(vkWaitSemaphores(self->device, &timeline_wait_info, UINT64_MAX));
 
+    bool needs_recreate =
+        self->window->width != self->swap_chain_extent.width
+        || self->window->height != self->swap_chain_extent.height;
+
     // Note: image_available_semaphores and command_buffers are indexed by frame_index,
     //       while render_finished_semaphores is indexed by image_index
-    bool needs_recreate = self->window->is_resized;
-    if (self->window->width != self->swap_chain_extent.width
-        || self->window->height != self->swap_chain_extent.height) {
-        needs_recreate = true;
-    } else {
-        self->window->is_resized = false;
-    }
-
     VkSemaphore present_complete_semaphore = self->image_available_semaphores[frame_index];
 
     uint32_t image_index;
