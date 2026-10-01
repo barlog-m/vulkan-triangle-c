@@ -5,8 +5,6 @@
 
 #include "vk_mem_alloc.h"
 
-void vk_allocator_init();
-
 void vk_swap_chain_init(
     uint32_t width,
     uint32_t height,

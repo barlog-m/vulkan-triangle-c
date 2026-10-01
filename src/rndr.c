@@ -2,138 +2,144 @@
 
 #include "SDL3/SDL_vulkan.h"
 
-#include "app.h"
 #include "assert.h"
-#include "asset_locator.h"
+#include "mesh.h"
 #include "vk_debug.h"
 #include "vk_init_core.h"
 #include "vk_init_rndr.h"
 
-Rndr g_rndr = {};
-
-void rndr_init()
+Rndr* rndr_init(AssetLocator* asset_locator, Window* window)
 {
-    vk_device_init();
-    vk_allocator_init();
+    Rndr* self = calloc(1, sizeof(Rndr));
+    self->asset_locator = asset_locator;
+    self->window = window;
+    
+    vk_device_init(self);
+    vk_allocator_init(self);
 
     vk_swap_chain_init(
-        g_app.width, g_app.height, g_rndr.gpu, g_rndr.device, g_rndr.surface, VK_NULL_HANDLE, &g_rndr.swap_chain,
-        &g_rndr.swap_chain_images, &g_rndr.swap_chain_images_count, &g_rndr.swap_chain_surface_format,
-        &g_rndr.swap_chain_extent);
+        window->width, window->height, self->gpu, self->device, self->surface, VK_NULL_HANDLE, &self->swap_chain,
+        &self->swap_chain_images, &self->swap_chain_images_count, &self->swap_chain_surface_format,
+        &self->swap_chain_extent);
 
     vk_swap_chain_image_views_init(
-        g_rndr.device, g_rndr.swap_chain_images, g_rndr.swap_chain_images_count, &g_rndr.swap_chain_surface_format,
-        &g_rndr.swap_chain_image_views, &g_rndr.swap_chain_image_views_count);
+        self->device, self->swap_chain_images, self->swap_chain_images_count, &self->swap_chain_surface_format,
+        &self->swap_chain_image_views, &self->swap_chain_image_views_count);
 
-    g_rndr.color_format = g_rndr.swap_chain_surface_format.format;
+    self->color_format = self->swap_chain_surface_format.format;
 
     vk_color_resources_init(
-        g_rndr.device, g_rndr.vma, &g_rndr.swap_chain_extent, g_rndr.swap_chain_surface_format.format,
-        g_rndr.msaa_samples, &g_rndr.color_image, &g_rndr.color_image_alloc, &g_rndr.color_image_view);
+        self->device, self->vma, &self->swap_chain_extent, self->swap_chain_surface_format.format,
+        self->msaa_samples, &self->color_image, &self->color_image_alloc, &self->color_image_view);
 
-    vk_find_depth_format(g_rndr.gpu, &g_rndr.depth_format);
+    vk_find_depth_format(self->gpu, &self->depth_format);
 
     vk_depth_resources_init(
-        g_rndr.gpu, g_rndr.device, g_rndr.vma, &g_rndr.swap_chain_extent, g_rndr.msaa_samples, &g_rndr.depth_image,
-        &g_rndr.depth_image_alloc, &g_rndr.depth_image_view);
+        self->gpu, self->device, self->vma, &self->swap_chain_extent, self->msaa_samples, &self->depth_image,
+        &self->depth_image_alloc, &self->depth_image_view);
 
-    vk_descriptor_set_layout_init(g_rndr.device, &g_rndr.descriptor_set_layout);
+    vk_descriptor_set_layout_init(self->device, &self->descriptor_set_layout);
 
     vk_graphics_pipeline_init(
-        g_asset_locator.shaders_dir, g_rndr.gpu, g_rndr.device, &g_rndr.swap_chain_surface_format,
-        g_rndr.descriptor_set_layout, g_rndr.msaa_samples, &g_rndr.pipeline_layout, &g_rndr.graphics_pipeline);
+        self->asset_locator->shaders_dir, self->gpu, self->device, &self->swap_chain_surface_format,
+        self->descriptor_set_layout, self->msaa_samples, &self->pipeline_layout, &self->graphics_pipeline);
 
-    vk_command_pool_init(g_rndr.device, g_rndr.queue_family_indices.graphics_family, &g_rndr.command_pool);
+    vk_command_pool_init(self->device, self->queue_family_indices.graphics_family, &self->command_pool);
 
-    vk_command_buffers_init(g_rndr.device, g_rndr.command_pool, g_rndr.command_buffers);
+    vk_command_buffers_init(self->device, self->command_pool, self->command_buffers);
 
     vk_prepare_image_layouts(
-        g_rndr.device, g_rndr.graphics_queue, g_rndr.command_pool, g_rndr.color_image, g_rndr.depth_image);
+        self->device, self->graphics_queue, self->command_pool, self->color_image, self->depth_image);
 
     vk_sync_objects_init(
-        g_rndr.device, g_rndr.image_available_semaphores, g_rndr.render_finished_semaphores,
-        &g_rndr.render_timeline_semaphore);
+        self->device, self->image_available_semaphores, self->render_finished_semaphores,
+        &self->render_timeline_semaphore);
+   
+    self->current_frame_index = 0;
+    self->frame_number = 0;
+    
+    return self;
 }
 
-void rndr_fini()
+void rndr_fini(Rndr* self)
 {
-    vkDeviceWaitIdle(g_rndr.device);
+    vkDeviceWaitIdle(self->device);
 
     vk_sync_objects_fini(
-        g_rndr.device, g_rndr.image_available_semaphores, g_rndr.render_finished_semaphores,
-        g_rndr.render_timeline_semaphore);
+        self->device, self->image_available_semaphores, self->render_finished_semaphores,
+        self->render_timeline_semaphore);
 
-    vkDestroyCommandPool(g_rndr.device, g_rndr.command_pool, nullptr);
+    vkDestroyCommandPool(self->device, self->command_pool, nullptr);
 
-    vkDestroyPipeline(g_rndr.device, g_rndr.graphics_pipeline, nullptr);
-    vkDestroyPipelineLayout(g_rndr.device, g_rndr.pipeline_layout, nullptr);
+    vkDestroyPipeline(self->device, self->graphics_pipeline, nullptr);
+    vkDestroyPipelineLayout(self->device, self->pipeline_layout, nullptr);
 
-    vkDestroyDescriptorSetLayout(g_rndr.device, g_rndr.descriptor_set_layout, nullptr);
-
-    vk_image_resources_fini(
-        g_rndr.device, g_rndr.vma, &g_rndr.depth_image, &g_rndr.depth_image_alloc, &g_rndr.depth_image_view);
+    vkDestroyDescriptorSetLayout(self->device, self->descriptor_set_layout, nullptr);
 
     vk_image_resources_fini(
-        g_rndr.device, g_rndr.vma, &g_rndr.color_image, &g_rndr.color_image_alloc, &g_rndr.color_image_view);
+        self->device, self->vma, &self->depth_image, &self->depth_image_alloc, &self->depth_image_view);
 
-    vk_swap_chain_fini(g_rndr.device, g_rndr.swap_chain, &g_rndr.swap_chain_images, &g_rndr.swap_chain_images_count,
-        &g_rndr.swap_chain_image_views, &g_rndr.swap_chain_image_views_count); 
+    vk_image_resources_fini(
+        self->device, self->vma, &self->color_image, &self->color_image_alloc, &self->color_image_view);
 
-    vmaDestroyAllocator(g_rndr.vma);
+    vk_swap_chain_fini(self->device, self->swap_chain, &self->swap_chain_images, &self->swap_chain_images_count,
+        &self->swap_chain_image_views, &self->swap_chain_image_views_count); 
 
-    vkDestroyDevice(g_rndr.device, nullptr);
+    vmaDestroyAllocator(self->vma);
+
+    vkDestroyDevice(self->device, nullptr);
 
 #ifndef NDEBUG
-    if (g_rndr.instance != VK_NULL_HANDLE) {
-        vk_debug_utils_fini(g_rndr.instance);
+    if (self->instance != VK_NULL_HANDLE) {
+        vk_debug_utils_fini(self->instance);
     }
 #endif
 
-    SDL_Vulkan_DestroySurface(g_rndr.instance, g_rndr.surface, nullptr);
-    vkDestroyInstance(g_rndr.instance, nullptr);
+    SDL_Vulkan_DestroySurface(self->instance, self->surface, nullptr);
+    vkDestroyInstance(self->instance, nullptr);
 }
 
-static void rndr_recreate_swap_chain()
+static void rndr_recreate_swap_chain(Rndr* self)
 {
-    vkDeviceWaitIdle(g_rndr.device);
+    vkDeviceWaitIdle(self->device);
 
-    VkSwapchainKHR old_swap_chain = g_rndr.swap_chain;
+    VkSwapchainKHR old_swap_chain = self->swap_chain;
     
     vk_image_resources_fini(
-        g_rndr.device, g_rndr.vma, &g_rndr.depth_image, &g_rndr.depth_image_alloc, &g_rndr.depth_image_view);
+        self->device, self->vma, &self->depth_image, &self->depth_image_alloc, &self->depth_image_view);
 
     vk_image_resources_fini(
-        g_rndr.device, g_rndr.vma, &g_rndr.color_image, &g_rndr.color_image_alloc, &g_rndr.color_image_view);
+        self->device, self->vma, &self->color_image, &self->color_image_alloc, &self->color_image_view);
 
     vk_swap_chain_image_resources_clean(
-        g_rndr.device, &g_rndr.swap_chain_images, &g_rndr.swap_chain_images_count,
-        &g_rndr.swap_chain_image_views, &g_rndr.swap_chain_image_views_count);
+        self->device, &self->swap_chain_images, &self->swap_chain_images_count,
+        &self->swap_chain_image_views, &self->swap_chain_image_views_count);
     
-    g_rndr.swap_chain = VK_NULL_HANDLE;
+    self->swap_chain = VK_NULL_HANDLE;
 
     vk_swap_chain_init(
-        g_app.width, g_app.height, g_rndr.gpu, g_rndr.device, g_rndr.surface, old_swap_chain, &g_rndr.swap_chain,
-        &g_rndr.swap_chain_images, &g_rndr.swap_chain_images_count, &g_rndr.swap_chain_surface_format,
-        &g_rndr.swap_chain_extent);
-    vkDestroySwapchainKHR(g_rndr.device, old_swap_chain, nullptr);
+        self->window->width, self->window->height, self->gpu, self->device, self->surface, old_swap_chain, &self->swap_chain,
+        &self->swap_chain_images, &self->swap_chain_images_count, &self->swap_chain_surface_format,
+        &self->swap_chain_extent);
+    vkDestroySwapchainKHR(self->device, old_swap_chain, nullptr);
 
     vk_swap_chain_image_views_init(
-        g_rndr.device, g_rndr.swap_chain_images, g_rndr.swap_chain_images_count, &g_rndr.swap_chain_surface_format,
-        &g_rndr.swap_chain_image_views, &g_rndr.swap_chain_image_views_count);
+        self->device, self->swap_chain_images, self->swap_chain_images_count, &self->swap_chain_surface_format,
+        &self->swap_chain_image_views, &self->swap_chain_image_views_count);
 
     vk_color_resources_init(
-        g_rndr.device, g_rndr.vma, &g_rndr.swap_chain_extent, g_rndr.swap_chain_surface_format.format,
-        g_rndr.msaa_samples, &g_rndr.color_image, &g_rndr.color_image_alloc, &g_rndr.color_image_view);
+        self->device, self->vma, &self->swap_chain_extent, self->swap_chain_surface_format.format,
+        self->msaa_samples, &self->color_image, &self->color_image_alloc, &self->color_image_view);
 
     vk_depth_resources_init(
-        g_rndr.gpu, g_rndr.device, g_rndr.vma, &g_rndr.swap_chain_extent, g_rndr.msaa_samples, &g_rndr.depth_image,
-        &g_rndr.depth_image_alloc, &g_rndr.depth_image_view);
+        self->gpu, self->device, self->vma, &self->swap_chain_extent, self->msaa_samples, &self->depth_image,
+        &self->depth_image_alloc, &self->depth_image_view);
     
     vk_prepare_image_layouts(
-        g_rndr.device, g_rndr.graphics_queue, g_rndr.command_pool, g_rndr.color_image, g_rndr.depth_image);
+        self->device, self->graphics_queue, self->command_pool, self->color_image, self->depth_image);
 }
 
-static void rndr_record_command_buffer(VkCommandBuffer command_buffer, uint32_t image_index, const Mesh* mesh)
+static void rndr_record_command_buffer(Rndr* self, VkCommandBuffer command_buffer, uint32_t image_index, const Mesh* mesh)
 {
     ASSERT_VK(vkResetCommandBuffer(command_buffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT));
 
@@ -143,8 +149,8 @@ static void rndr_record_command_buffer(VkCommandBuffer command_buffer, uint32_t 
     };
     ASSERT_VK(vkBeginCommandBuffer(command_buffer, &begin_info));
 
-    VkImage swap_chain_image = g_rndr.swap_chain_images[image_index];
-    VkImageView swap_chain_image_view = g_rndr.swap_chain_image_views[image_index];
+    VkImage swap_chain_image = self->swap_chain_images[image_index];
+    VkImageView swap_chain_image_view = self->swap_chain_image_views[image_index];
 
     vk_transition_image_layout(
         command_buffer, swap_chain_image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL, 0,
@@ -160,7 +166,7 @@ static void rndr_record_command_buffer(VkCommandBuffer command_buffer, uint32_t 
 
     const VkRenderingAttachmentInfo color_attachment_info = {
         .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
-        .imageView = g_rndr.color_image_view,
+        .imageView = self->color_image_view,
         .imageLayout = VK_IMAGE_LAYOUT_GENERAL,
         .resolveMode = VK_RESOLVE_MODE_AVERAGE_BIT,
         .resolveImageView = swap_chain_image_view,
@@ -172,7 +178,7 @@ static void rndr_record_command_buffer(VkCommandBuffer command_buffer, uint32_t 
 
     const VkRenderingAttachmentInfo depth_attachment_info = {
         .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
-        .imageView = g_rndr.depth_image_view,
+        .imageView = self->depth_image_view,
         .imageLayout = VK_IMAGE_LAYOUT_GENERAL,
         .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
         .storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
@@ -181,7 +187,7 @@ static void rndr_record_command_buffer(VkCommandBuffer command_buffer, uint32_t 
 
     const VkRenderingInfo rendering_info = {
         .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
-        .renderArea = { .offset = { 0, 0 }, .extent = g_rndr.swap_chain_extent },
+        .renderArea = { .offset = { .x = 0, .y = 0 }, .extent = self->swap_chain_extent },
         .layerCount = 1,
         .colorAttachmentCount = 1,
         .pColorAttachments = &color_attachment_info,
@@ -189,13 +195,13 @@ static void rndr_record_command_buffer(VkCommandBuffer command_buffer, uint32_t 
     };
 
     vkCmdBeginRendering(command_buffer, &rendering_info);
-    vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, g_rndr.graphics_pipeline);
+    vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, self->graphics_pipeline);
 
     const VkViewport viewport = {
         .x = 0.0F,
         .y = 0.0F,
-        .width = (float)g_rndr.swap_chain_extent.width,
-        .height = (float)g_rndr.swap_chain_extent.height,
+        .width = (float)self->swap_chain_extent.width,
+        .height = (float)self->swap_chain_extent.height,
         .minDepth = 0.0F,
         .maxDepth = 1.0F,
     };
@@ -203,7 +209,7 @@ static void rndr_record_command_buffer(VkCommandBuffer command_buffer, uint32_t 
 
     const VkRect2D scissor = {
         .offset = { 0, 0 },
-        .extent = g_rndr.swap_chain_extent,
+        .extent = self->swap_chain_extent,
     };
     vkCmdSetScissor(command_buffer, 0, 1, &scissor);
 
@@ -223,42 +229,42 @@ static void rndr_record_command_buffer(VkCommandBuffer command_buffer, uint32_t 
     ASSERT_VK(vkEndCommandBuffer(command_buffer));
 }
 
-void rndr_draw_frame(const Mesh* mesh)
+void rndr_draw_frame(Rndr* self, const Mesh* mesh)
 {
-    if (g_app.width == 0 || g_app.height == 0) {
-        g_app.is_resized = true;
+    if (self->window->width == 0 || self->window->height == 0) {
+        self->window->is_resized = true;
         return;
     }
 
-    const uint32_t frame_index = g_rndr.current_frame_index;
+    const uint32_t frame_index = self->current_frame_index;
 
     const uint64_t wait_value =
-        g_rndr.frame_number > MAX_FRAMES_IN_FLIGHT - 1
-            ? g_rndr.frame_number - (MAX_FRAMES_IN_FLIGHT - 1)
+        self->frame_number > MAX_FRAMES_IN_FLIGHT - 1
+            ? self->frame_number - (MAX_FRAMES_IN_FLIGHT - 1)
             : 0;
     const VkSemaphoreWaitInfo timeline_wait_info = {
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO,
         .semaphoreCount = 1,
-        .pSemaphores = &g_rndr.render_timeline_semaphore,
+        .pSemaphores = &self->render_timeline_semaphore,
         .pValues = &wait_value,
     };
-    ASSERT_VK(vkWaitSemaphores(g_rndr.device, &timeline_wait_info, UINT64_MAX));
+    ASSERT_VK(vkWaitSemaphores(self->device, &timeline_wait_info, UINT64_MAX));
 
     // Note: image_available_semaphores and command_buffers are indexed by frame_index,
     //       while render_finished_semaphores is indexed by image_index
-    bool needs_recreate = g_app.is_resized;
-    if (g_app.width != g_rndr.swap_chain_extent.width
-        || g_app.height != g_rndr.swap_chain_extent.height) {
+    bool needs_recreate = self->window->is_resized;
+    if (self->window->width != self->swap_chain_extent.width
+        || self->window->height != self->swap_chain_extent.height) {
         needs_recreate = true;
     } else {
-        g_app.is_resized = false;
+        self->window->is_resized = false;
     }
 
-    VkSemaphore present_complete_semaphore = g_rndr.image_available_semaphores[frame_index];
+    VkSemaphore present_complete_semaphore = self->image_available_semaphores[frame_index];
 
     uint32_t image_index;
     const VkResult acquire_result = vkAcquireNextImageKHR(
-        g_rndr.device, g_rndr.swap_chain, UINT64_MAX,
+        self->device, self->swap_chain, UINT64_MAX,
         present_complete_semaphore, VK_NULL_HANDLE, &image_index);
 
     switch (acquire_result) {
@@ -268,7 +274,7 @@ void rndr_draw_frame(const Mesh* mesh)
             needs_recreate = true;
             break;
         case VK_ERROR_OUT_OF_DATE_KHR:
-            rndr_recreate_swap_chain();
+            rndr_recreate_swap_chain(self);
             return;
         case VK_NOT_READY:
         case VK_TIMEOUT:
@@ -280,12 +286,12 @@ void rndr_draw_frame(const Mesh* mesh)
 
     ASSERT_MSG(image_index < MAX_SWAPCHAIN_IMAGES, "image_index out of render_finished_semaphores bounds");
 
-    VkCommandBuffer command_buffer = g_rndr.command_buffers[frame_index];
+    VkCommandBuffer command_buffer = self->command_buffers[frame_index];
 
-    rndr_record_command_buffer(command_buffer, image_index, mesh);
+    rndr_record_command_buffer(self, command_buffer, image_index, mesh);
 
     // Submit
-    const uint64_t signal_value = g_rndr.frame_number + 1;
+    const uint64_t signal_value = self->frame_number + 1;
 
     const VkSemaphoreSubmitInfo wait_semaphore_infos[] = {
         {
@@ -295,8 +301,8 @@ void rndr_draw_frame(const Mesh* mesh)
         },
         {
             .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
-            .semaphore = g_rndr.render_timeline_semaphore,
-            .value = g_rndr.frame_number,
+            .semaphore = self->render_timeline_semaphore,
+            .value = self->frame_number,
             .stageMask = VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT,
         },
     };
@@ -309,12 +315,12 @@ void rndr_draw_frame(const Mesh* mesh)
     const VkSemaphoreSubmitInfo signal_semaphore_infos[] = {
         {
             .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
-            .semaphore = g_rndr.render_finished_semaphores[image_index],
+            .semaphore = self->render_finished_semaphores[image_index],
             .stageMask = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,
         },
         {
             .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
-            .semaphore = g_rndr.render_timeline_semaphore,
+            .semaphore = self->render_timeline_semaphore,
             .value = signal_value,
             .stageMask = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,
         },
@@ -328,11 +334,11 @@ void rndr_draw_frame(const Mesh* mesh)
         .signalSemaphoreInfoCount = 2,
         .pSignalSemaphoreInfos = signal_semaphore_infos,
     };
-    ASSERT_VK(vkQueueSubmit2(g_rndr.graphics_queue, 1, &submit_info, VK_NULL_HANDLE));
+    ASSERT_VK(vkQueueSubmit2(self->graphics_queue, 1, &submit_info, VK_NULL_HANDLE));
 
     // Present
-    const VkSemaphore wait_semaphores[] = { g_rndr.render_finished_semaphores[image_index] };
-    const VkSwapchainKHR swapchains[] = { g_rndr.swap_chain };
+    const VkSemaphore wait_semaphores[] = { self->render_finished_semaphores[image_index] };
+    const VkSwapchainKHR swapchains[] = { self->swap_chain };
     const VkPresentInfoKHR present_info = {
         .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
         .waitSemaphoreCount = 1,
@@ -342,7 +348,7 @@ void rndr_draw_frame(const Mesh* mesh)
         .pImageIndices = &image_index,
     };
 
-    const VkResult present_result = vkQueuePresentKHR(g_rndr.graphics_queue, &present_info);
+    const VkResult present_result = vkQueuePresentKHR(self->graphics_queue, &present_info);
     switch (present_result) {
         case VK_SUCCESS:
             break;
@@ -356,9 +362,9 @@ void rndr_draw_frame(const Mesh* mesh)
     }
 
     if (needs_recreate) {
-        rndr_recreate_swap_chain();
+        rndr_recreate_swap_chain(self);
     }
 
-    g_rndr.frame_number += 1;
-    g_rndr.current_frame_index = (g_rndr.current_frame_index + 1) % MAX_FRAMES_IN_FLIGHT;
+    self->frame_number += 1;
+    self->current_frame_index = (self->current_frame_index + 1) % MAX_FRAMES_IN_FLIGHT;
 }

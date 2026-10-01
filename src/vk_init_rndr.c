@@ -12,23 +12,6 @@
 #include "vk_debug.h"
 #include "vk_utils.h"
 
-void vk_allocator_init()
-{
-    const VmaVulkanFunctions vma_functions = {
-        .vkGetInstanceProcAddr = vkGetInstanceProcAddr,
-        .vkGetDeviceProcAddr = vkGetDeviceProcAddr,
-    };
-    const VmaAllocatorCreateInfo vma_create_info = {
-        .flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT,
-        .physicalDevice = g_rndr.gpu,
-        .device = g_rndr.device,
-        .instance = g_rndr.instance,
-        .vulkanApiVersion = VK_API_VERSION_1_4,
-        .pVulkanFunctions = &vma_functions,
-    };
-    ASSERT_VK(vmaCreateAllocator(&vma_create_info, &g_rndr.vma));
-}
-
 static VkSwapChainSupportDetails vk_query_swap_chain_support(VkPhysicalDevice gpu, VkSurfaceKHR surface)
 {
     VkSwapChainSupportDetails details = {};

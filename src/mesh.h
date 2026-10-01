@@ -4,7 +4,9 @@
 #include <vk_mem_alloc.h>
 #include <vulkan/vulkan_core.h>
 
-typedef struct {
+typedef struct Rndr Rndr;
+
+typedef struct Mesh {
     VkBuffer vertex_buffer;
     VmaAllocation vertex_buffer_alloc;
     VkBuffer index_buffer;
@@ -14,8 +16,7 @@ typedef struct {
     uint32_t vertices_count;
 } Mesh;
 
-void mesh_init(Mesh* mesh);
-
-void mesh_fini(const Mesh* mesh);
+Mesh* mesh_init(const Rndr* rndr);
+void mesh_fini(Mesh* mesh, const Rndr* rndr);
 
 #endif // MESH_H

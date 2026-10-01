@@ -7,10 +7,10 @@
 #include "constants.h"
 #include "utils.h"
 
-AssetLocator g_asset_locator = {};
-
-void asset_locator_init()
+AssetLocator* asset_locator_init()
 {
+    AssetLocator* self = calloc(1, sizeof(AssetLocator));
+    
     char* base_bin_path = get_base_path();
     const size_t base_bin_path_len = strlen(base_bin_path);
     constexpr size_t suffix_len = 5;  // strip trailing "/bin/"
@@ -20,18 +20,20 @@ void asset_locator_init()
     memcpy(base_dir, base_bin_path, base_dir_len);
     base_dir[base_dir_len] = '\0';
     free(base_bin_path);
-    g_asset_locator.base_dir = strdup(base_dir);
+    self->base_dir = strdup(base_dir);
 
     char shaders_dir[MAX_PATH];
     snprintf(shaders_dir, sizeof(shaders_dir), "%s%s", base_dir, "/shaders");
-    g_asset_locator.shaders_dir = strdup(shaders_dir);
+    self->shaders_dir = strdup(shaders_dir);
+    
+    return self;
 }
 
-void asset_locator_fini()
+void asset_locator_fini(AssetLocator* self)
 {
-    free(g_asset_locator.base_dir);
-    g_asset_locator.base_dir = nullptr;
+    free(self->base_dir);
+    self->base_dir = nullptr;
 
-    free(g_asset_locator.shaders_dir);
-    g_asset_locator.shaders_dir = nullptr;
+    free(self->shaders_dir);
+    self->shaders_dir = nullptr;
 }

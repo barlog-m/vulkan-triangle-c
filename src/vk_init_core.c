@@ -8,9 +8,8 @@
 #include <SDL3/SDL_vulkan.h>
 
 #include "assert.h"
-#include "vk_debug.h"
-#include "app.h"
 #include "rndr.h"
+#include "vk_debug.h"
 
 static const char* VALIDATION_LAYERS[] = { "VK_LAYER_KHRONOS_validation" };
 static const char* DEVICE_EXTENSIONS[] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_EXT_MESH_SHADER_EXTENSION_NAME };
@@ -259,7 +258,7 @@ static bool vk_is_physical_device_has_graphics_and_present_family(VkPhysicalDevi
             continue;
         }
 
-        VkBool32 present_support = false;
+        VkBool32 present_support = VK_FALSE;
         vkGetPhysicalDeviceSurfaceSupportKHR(gpu, queue_family_index, surface, &present_support);
         if (present_support) {
             return true;
@@ -321,7 +320,7 @@ vk_find_best_queue_families(VkPhysicalDevice gpu, VkSurfaceKHR surface, VkQueueF
         // Graphics queue (highest priority) — the family we pick must also support
         // present on this surface, because we present from the graphics queue.
         if (flags & VK_QUEUE_GRAPHICS_BIT) {
-            VkBool32 present_support = false;
+            VkBool32 present_support = VK_FALSE;
             vkGetPhysicalDeviceSurfaceSupportKHR(gpu, i, surface, &present_support);
 
             if (present_support) {
@@ -485,17 +484,34 @@ static void vk_create_logical_device(
     }
 }
 
-void vk_device_init()
+void vk_device_init(Rndr* rndr)
 {
-    g_rndr.gpu = VK_NULL_HANDLE;
+    rndr->gpu = VK_NULL_HANDLE;
 
-    vk_create_instance(&g_rndr.instance);
+    vk_create_instance(&rndr->instance);
 
-    ASSERT_SDL(SDL_Vulkan_CreateSurface(g_app.window, g_rndr.instance, nullptr, &g_rndr.surface));
+    ASSERT_SDL(SDL_Vulkan_CreateSurface(rndr->window->sdl_window, rndr->instance, nullptr, &rndr->surface));
 
-    vk_pick_physical_device(g_rndr.instance, g_rndr.surface, &g_rndr.gpu, &g_rndr.msaa_samples);
+    vk_pick_physical_device(rndr->instance, rndr->surface, &rndr->gpu, &rndr->msaa_samples);
 
     vk_create_logical_device(
-        g_rndr.gpu, &g_rndr.device, g_rndr.surface, &g_rndr.queue_family_indices, &g_rndr.graphics_queue,
-        &g_rndr.compute_queue);
+        rndr->gpu, &rndr->device, rndr->surface, &rndr->queue_family_indices, &rndr->graphics_queue,
+        &rndr->compute_queue);
+}
+
+void vk_allocator_init(Rndr* rndr)
+{
+    const VmaVulkanFunctions vma_functions = {
+        .vkGetInstanceProcAddr = vkGetInstanceProcAddr,
+        .vkGetDeviceProcAddr = vkGetDeviceProcAddr,
+    };
+    const VmaAllocatorCreateInfo vma_create_info = {
+        .flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT,
+        .physicalDevice = rndr->gpu,
+        .device = rndr->device,
+        .instance = rndr->instance,
+        .vulkanApiVersion = VK_API_VERSION_1_4,
+        .pVulkanFunctions = &vma_functions,
+    };
+    ASSERT_VK(vmaCreateAllocator(&vma_create_info, &rndr->vma));
 }

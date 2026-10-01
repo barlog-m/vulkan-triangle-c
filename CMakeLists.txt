@@ -11,7 +11,7 @@ if(NOT DEFINED CMAKE_CXX_COMPILER)
     set(CMAKE_CXX_COMPILER clang++ CACHE FILEPATH "" FORCE)
 endif()
 
-project(vulkan-tutorial-c LANGUAGES C CXX)
+project(vulkan-triangle-c LANGUAGES C CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 

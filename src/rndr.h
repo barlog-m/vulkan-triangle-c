@@ -3,12 +3,15 @@
 
 #include <vulkan/vulkan_core.h>
 
+#include "asset_locator.h"
+#include "window.h"
 #include "constants.h"
-#include "mesh.h"
 #include "vertex.h"
 #include "vk_utils.h"
 
-typedef struct {
+typedef struct Mesh Mesh;
+
+typedef struct VkSwapChainSupportDetails {
     VkSurfaceCapabilitiesKHR capabilities;
     VkSurfaceFormatKHR* formats;
     size_t formats_count;
@@ -16,7 +19,7 @@ typedef struct {
     size_t present_modes_count;
 } VkSwapChainSupportDetails;
 
-typedef struct {
+typedef struct VkQueueFamilyIndices {
     uint32_t graphics_family;
     uint32_t compute_family;
     uint32_t transfer_family;
@@ -25,7 +28,9 @@ typedef struct {
     bool has_transfer;
 } VkQueueFamilyIndices;
 
-typedef struct {
+typedef struct Rndr {
+    AssetLocator* asset_locator;
+    Window* window;
     VkInstance instance;
     VkPhysicalDevice gpu;
     VkDevice device;
@@ -72,10 +77,8 @@ typedef struct {
     uint64_t frame_number;
 } Rndr;
 
-extern Rndr g_rndr;
-
-void rndr_init();
-void rndr_fini();
-void rndr_draw_frame(const Mesh* mesh);
+Rndr* rndr_init(AssetLocator* asset_locator, Window* window);
+void rndr_fini(Rndr* self);
+void rndr_draw_frame(Rndr* self, const Mesh* mesh);
 
 #endif

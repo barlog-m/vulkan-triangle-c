@@ -4,15 +4,15 @@
 #include <string.h>
 
 #include "assert.h"
-#include "rndr.h"
 #include "vk_utils.h"
+#include "rndr.h"
 
-void mesh_fini(const Mesh* mesh)
+void mesh_fini(Mesh* mesh, const Rndr* rndr)
 {
-    vkDeviceWaitIdle(g_rndr.device);
+    vkDeviceWaitIdle(rndr->device);
 
-    vmaDestroyBuffer(g_rndr.vma, mesh->index_buffer, mesh->index_buffer_alloc);
-    vmaDestroyBuffer(g_rndr.vma, mesh->vertex_buffer, mesh->vertex_buffer_alloc);
+    vmaDestroyBuffer(rndr->vma, mesh->index_buffer, mesh->index_buffer_alloc);
+    vmaDestroyBuffer(rndr->vma, mesh->vertex_buffer, mesh->vertex_buffer_alloc);
 }
 
 static void mesh_create_vertex_buffer(
@@ -75,13 +75,15 @@ static void mesh_create_index_buffer(
     vmaDestroyBuffer(vma, staging_index_buffer, staging_index_alloc);
 }
 
-void mesh_init(Mesh* mesh)
+Mesh* mesh_init(const Rndr* rndr)
 {
+    Mesh* mesh = malloc(sizeof(Mesh));
+    
     uint32_t indices[] = { 0, 1, 2, 2, 3, 0 };
     mesh->indices_count = sizeof(indices) / sizeof(indices[0]);
 
     mesh_create_index_buffer(
-        mesh, g_rndr.vma, g_rndr.device, g_rndr.graphics_queue, g_rndr.command_pool, indices, mesh->indices_count);
+        mesh, rndr->vma, rndr->device, rndr->graphics_queue, rndr->command_pool, indices, mesh->indices_count);
 
     Vertex vertices[] = {
         (Vertex){
@@ -104,5 +106,7 @@ void mesh_init(Mesh* mesh)
     mesh->vertices_count = sizeof(vertices) / sizeof(vertices[0]);
 
     mesh_create_vertex_buffer(
-        mesh, g_rndr.vma, g_rndr.device, g_rndr.graphics_queue, g_rndr.command_pool, vertices, mesh->vertices_count);
+        mesh, rndr->vma, rndr->device, rndr->graphics_queue, rndr->command_pool, vertices, mesh->vertices_count);
+    
+    return mesh;
 }

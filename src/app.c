@@ -4,80 +4,66 @@
 
 #include "assert.h"
 #include "asset_locator.h"
+#include "mesh.h"
 #include "rndr.h"
 
-App g_app = {};
-
-static Mesh mesh;
-
-void app_init()
+App* app_init()
 {
-    ASSERT_SDL(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS));
-
-    constexpr Uint32 window_flags = SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE;
-    SDL_Window *window = SDL_CreateWindow("Vulkan Triangle", 1920, 1080, window_flags);
-
-    ASSERT_SDL(window != nullptr);
+    App* app = calloc(1, sizeof(App));
     
-    int width = 0;
-    int height = 0;
-    SDL_GetWindowSizeInPixels(window, &width, &height);
-    g_app.width  = (uint32_t)width;
-    g_app.height = (uint32_t)height;
-    g_app.is_resized = false;
+    app->window = window_init();
     
-    g_app.window = window;
+    app->asset_locator = asset_locator_init();
     
-    asset_locator_init();
-    rndr_init();
-    mesh_init(&mesh);
+    app->rndr = rndr_init(app->asset_locator, app->window);
+    
+    app->mesh = mesh_init(app->rndr);
 
-    g_app.is_running = true;
+    app->is_running = true;
+
+    return app;
 }
 
-void app_run()
+void app_run(App* self)
 {
-    while (g_app.is_running) {
+    while (self->is_running) {
         SDL_Event ev;
 
         while (SDL_PollEvent(&ev)) {
             switch (ev.type) {
                 case SDL_EVENT_QUIT:
-                    g_app.is_running = false;
+                    self->is_running = false;
                     break;
 
                 case SDL_EVENT_KEY_DOWN:
                     if (ev.key.key == SDLK_ESCAPE) {
-                        g_app.is_running = false;
+                        self->is_running = false;
                     }
                     break;
-                    
+
                 case SDL_EVENT_WINDOW_RESIZED:
                 case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED: {
-                    int width = 0;
-                    int height = 0;
-                    SDL_GetWindowSizeInPixels(g_app.window, &width, &height);
-                    g_app.width     = (uint32_t)width;
-                    g_app.height    = (uint32_t)height;
-                    g_app.is_resized = true;
+                    window_update_size(self->window);
                     break;
                 }
-                    
+
                 default:
                     break;
             }
         }
 
-        rndr_draw_frame(&mesh);
+        rndr_draw_frame(self->rndr, self->mesh);
         SDL_Delay(16);
     }
 }
 
-void app_fini()
+void app_fini(App* self)
 {
-    mesh_fini(&mesh);
-    rndr_fini();
-    asset_locator_fini();
-    SDL_DestroyWindow(g_app.window);
+    mesh_fini(self->mesh, self->rndr);
+    rndr_fini(self->rndr);
+    asset_locator_fini(self->asset_locator);
+    window_fini(self->window);
+    
     SDL_Quit();
+    free(self);
 }
