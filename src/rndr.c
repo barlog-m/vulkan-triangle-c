@@ -269,6 +269,10 @@ void rndr_draw_frame(Rndr* self, const Mesh* mesh)
             needs_recreate = true;
             break;
         case VK_ERROR_OUT_OF_DATE_KHR:
+            // NOTE: frame_number is deliberately NOT incremented here, so no timeline
+            //       signal is ever enqueued for this frame number. The wait-value math
+            //       in the next call stays consistent. If you touch this coupling,
+            //       update both sites together.
             rndr_recreate_swap_chain(self);
             return;
         case VK_NOT_READY:
