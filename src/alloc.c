@@ -6,9 +6,9 @@
 
 #include "assert.h"
 
-void *xmalloc(size_t size)
+void* xmalloc(size_t size)
 {
-    void *ptr = malloc(size);
+    void* ptr = malloc(size);
 
     if (ptr == NULL && size != 0) {
         ASSERT_MSG(false, "malloc failed");
@@ -17,7 +17,7 @@ void *xmalloc(size_t size)
     return ptr;
 }
 
-void *xcalloc(size_t count, size_t size)
+void* xcalloc(size_t count, size_t size)
 {
     if (count != 0 && size > SIZE_MAX / count) {
         ASSERT_MSG(false, "calloc failed");
@@ -32,7 +32,7 @@ void *xcalloc(size_t count, size_t size)
     return ptr;
 }
 
-void *xrealloc(void *ptr, size_t size)
+void* xrealloc(void* ptr, size_t size)
 {
     if (size == 0) {
         free(ptr);
@@ -46,4 +46,13 @@ void *xrealloc(void *ptr, size_t size)
     }
 
     return new_ptr;
+}
+
+void* xreallocn(void* ptr, size_t count, size_t size)
+{
+    if (count != 0 && size > SIZE_MAX / count) {
+        ASSERT_MSG(false, "realloc failed");
+    }
+
+    return xrealloc(ptr, count * size);
 }
