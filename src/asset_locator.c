@@ -4,12 +4,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "alloc.h"
 #include "constants.h"
 #include "utils.h"
 
 AssetLocator* asset_locator_init()
 {
-    AssetLocator* self = calloc(1, sizeof(AssetLocator));
+    AssetLocator* self = xcalloc(1, sizeof(AssetLocator));
     
     char* base_bin_path = get_base_path();
     const size_t base_bin_path_len = strlen(base_bin_path);

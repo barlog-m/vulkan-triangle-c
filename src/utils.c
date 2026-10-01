@@ -1,12 +1,13 @@
 #include "utils.h"
 
-#include <string.h>
-#include <unistd.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
+#include "alloc.h"
 #include "constants.h"
 #include "log.h"
 
@@ -66,7 +67,7 @@ uint32_t* read_binary_file(const char* filename, size_t* size)
     }
 
     *size = (size_t)file_stat.st_size;
-    uint32_t* buffer = malloc(*size);
+    uint32_t* buffer = xmalloc(*size);
     if (!buffer) {
         LOG_ERRNO_ERROR("malloc buffer");
         fclose(file);

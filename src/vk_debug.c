@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "alloc.h"
 #include "log.h"
 
 static VkDebugUtilsMessengerEXT vk_debug_messenger = VK_NULL_HANDLE;
@@ -21,7 +22,7 @@ bool vk_is_vulkan_debug_utils_supported()
         return false;
     }
 
-    VkExtensionProperties* extensions = malloc(extensionCount * sizeof(VkExtensionProperties));
+    VkExtensionProperties* extensions = xmalloc(extensionCount * sizeof(VkExtensionProperties));
     if (!extensions) {
         LOG_WARN("Failed to allocate memory for extensions");
         return false;

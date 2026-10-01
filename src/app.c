@@ -2,6 +2,7 @@
 
 #include <SDL3/SDL.h>
 
+#include "alloc.h"
 #include "assert.h"
 #include "asset_locator.h"
 #include "mesh.h"
@@ -9,7 +10,7 @@
 
 App* app_init()
 {
-    App* app = calloc(1, sizeof(App));
+    App* app = xcalloc(1, sizeof(App));
     
     app->window = window_init();
     

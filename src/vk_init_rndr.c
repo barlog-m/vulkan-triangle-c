@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "alloc.h"
 #include "assert.h"
 #include "constants.h"
 #include "rndr.h"
@@ -30,7 +31,7 @@ static VkSwapChainSupportDetails vk_query_swap_chain_support(VkPhysicalDevice gp
     vkGetPhysicalDeviceSurfaceFormatsKHR(gpu, surface, &format_count, nullptr);
     ASSERT(format_count > 0);
 
-    details.formats = malloc(format_count * sizeof(VkSurfaceFormatKHR));
+    details.formats = xmalloc(format_count * sizeof(VkSurfaceFormatKHR));
     ASSERT(details.formats);
     vkGetPhysicalDeviceSurfaceFormatsKHR(gpu, surface, &format_count, details.formats);
     details.formats_count = format_count;
@@ -39,7 +40,7 @@ static VkSwapChainSupportDetails vk_query_swap_chain_support(VkPhysicalDevice gp
     vkGetPhysicalDeviceSurfacePresentModesKHR(gpu, surface, &present_mode_count, nullptr);
     ASSERT(present_mode_count > 0);
 
-    details.present_modes = malloc(present_mode_count * sizeof(VkPresentModeKHR));
+    details.present_modes = xmalloc(present_mode_count * sizeof(VkPresentModeKHR));
     ASSERT(details.present_modes);
     vkGetPhysicalDeviceSurfacePresentModesKHR(gpu, surface, &present_mode_count, details.present_modes);
     details.present_modes_count = present_mode_count;
@@ -157,7 +158,7 @@ void vk_swap_chain_init(
     vk_free_swap_chain_support_details(&swap_chain_support);
 
     vkGetSwapchainImagesKHR(device, *swap_chain, &image_count, nullptr);
-    *swap_chain_images = malloc(sizeof(VkImage) * image_count);
+    *swap_chain_images = xmalloc(sizeof(VkImage) * image_count);
     ASSERT(*swap_chain_images);
     ASSERT_VK(vkGetSwapchainImagesKHR(device, *swap_chain, &image_count, *swap_chain_images));
 
@@ -209,7 +210,7 @@ void vk_swap_chain_image_views_init(
     uint32_t* swap_chain_image_views_count)
 {
     *swap_chain_image_views_count = swap_chain_images_count;
-    *swap_chain_image_views = malloc(sizeof(VkImageView) * swap_chain_images_count);
+    *swap_chain_image_views = xmalloc(sizeof(VkImageView) * swap_chain_images_count);
     ASSERT(*swap_chain_image_views);
 
     for (uint32_t i = 0; i < swap_chain_images_count; ++i) {

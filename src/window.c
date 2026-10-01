@@ -2,6 +2,8 @@
 
 #include <SDL3/SDL.h>
 #include "SDL3/SDL_init.h"
+
+#include "alloc.h"
 #include "assert.h"
 
 Window* window_init()
@@ -13,7 +15,7 @@ Window* window_init()
 
     ASSERT_SDL(window != nullptr);
 
-    Window* self = malloc(sizeof(Window));
+    Window* self = xmalloc(sizeof(Window));
     self->sdl_window = window;
 
     window_update_size(self);

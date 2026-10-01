@@ -2,6 +2,7 @@
 
 #include "SDL3/SDL_vulkan.h"
 
+#include "alloc.h"
 #include "assert.h"
 #include "mesh.h"
 #include "vk_debug.h"
@@ -10,7 +11,7 @@
 
 Rndr* rndr_init(AssetLocator* asset_locator, Window* window)
 {
-    Rndr* self = calloc(1, sizeof(Rndr));
+    Rndr* self = xcalloc(1, sizeof(Rndr));
     self->asset_locator = asset_locator;
     self->window = window;
     

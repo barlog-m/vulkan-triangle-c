@@ -4,9 +4,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <vulkan/vulkan_core.h>
 #include <SDL3/SDL_vulkan.h>
+#include <vulkan/vulkan_core.h>
 
+#include "alloc.h"
 #include "assert.h"
 #include "rndr.h"
 #include "vk_debug.h"
@@ -29,7 +30,7 @@ static bool vk_enable_validation_layers()
         return false;
     }
 
-    VkLayerProperties* available_layers = malloc(available_layer_count * sizeof(VkLayerProperties));
+    VkLayerProperties* available_layers = xmalloc(available_layer_count * sizeof(VkLayerProperties));
     const VkResult res = vkEnumerateInstanceLayerProperties(&available_layer_count, available_layers);
     if (res != VK_SUCCESS) {
         LOG_WARN("vkEnumerateInstanceLayerProperties failed");
@@ -108,7 +109,7 @@ static void vk_create_instance(VkInstance* instance)
     }
 #endif
 
-    const char** all_extensions = malloc(total_extension_count * sizeof(const char*));
+    const char** all_extensions = xmalloc(total_extension_count * sizeof(const char*));
     ASSERT(all_extensions);
 
     memcpy(all_extensions, sdl_extensions, sdl_extension_count * sizeof(const char*));

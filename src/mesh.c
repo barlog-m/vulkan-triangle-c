@@ -3,9 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "alloc.h"
 #include "assert.h"
-#include "vk_utils.h"
 #include "rndr.h"
+#include "vk_utils.h"
 
 void mesh_fini(Mesh* mesh, const Rndr* rndr)
 {
@@ -79,7 +80,7 @@ static void mesh_create_index_buffer(
 
 Mesh* mesh_init(const Rndr* rndr)
 {
-    Mesh* mesh = malloc(sizeof(Mesh));
+    Mesh* mesh = xmalloc(sizeof(Mesh));
     
     uint32_t indices[] = { 0, 1, 2, 2, 3, 0 };
     mesh->indices_count = sizeof(indices) / sizeof(indices[0]);

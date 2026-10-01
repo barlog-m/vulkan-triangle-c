@@ -5,27 +5,27 @@
 
 #include "log.h"
 
-#define ASSERT(expr)         \
-    do {                     \
-        if (!(expr)) {       \
-            LOG_FATAL(#expr);\
-            abort();         \
-        }                    \
+#define ASSERT(expr)           \
+    do {                       \
+        if (!(expr)) {         \
+            LOG_FATAL(#expr);  \
+            exit(EXIT_FAILURE);\
+        }                      \
     } while (0)
 
-#define ASSERT_MSG(expr, msg)         \
-    do {                              \
-        if (!(expr)) {                \
+#define ASSERT_MSG(expr, msg)          \
+    do {                               \
+        if (!(expr)) {                 \
             LOG_FATAL_MSG(#expr, #msg);\
-            abort();                  \
-        }                             \
+            exit(EXIT_FAILURE);        \
+        }                              \
     } while (0)
 
 #define ASSERT_VK(expr)            \
     do {                           \
         if ((expr) != VK_SUCCESS) {\
             LOG_FATAL(#expr);      \
-            abort();               \
+            exit(EXIT_FAILURE);    \
         }                          \
     } while (0)
 
@@ -33,7 +33,7 @@
     do {                                         \
         if (!(expr)) {                           \
             LOG_FATAL_MSG(#expr, SDL_GetError());\
-            abort();                             \
+            exit(EXIT_FAILURE);                  \
         }                                        \
     } while (0)
 
