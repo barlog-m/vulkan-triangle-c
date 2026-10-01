@@ -325,10 +325,10 @@ vk_find_best_queue_families(VkPhysicalDevice gpu, VkSurfaceKHR surface, VkQueueF
 
             if (present_support) {
                 uint32_t score = queue_count;
-                if (flags & VK_QUEUE_COMPUTE_BIT) {
+                if (!(flags & VK_QUEUE_COMPUTE_BIT)) {
                     score += 10;
                 }
-                if (flags & VK_QUEUE_TRANSFER_BIT) {
+                if (!(flags & VK_QUEUE_TRANSFER_BIT)) {
                     score += 5;
                 }
 

@@ -53,7 +53,6 @@ void app_run(App* self)
         }
 
         rndr_draw_frame(self->rndr, self->mesh);
-        SDL_Delay(16);
     }
 }
 

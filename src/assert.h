@@ -13,12 +13,12 @@
         }                    \
     } while (0)
 
-#define ASSERT_MSG(expr, msg) \
-    do {                      \
-        if (!(expr)) {        \
-            LOG_FATAL(msg);   \
-            abort();          \
-        }                     \
+#define ASSERT_MSG(expr, msg)         \
+    do {                              \
+        if (!(expr)) {                \
+            LOG_FATAL_MSG(#expr, #msg);\
+            abort();                  \
+        }                             \
     } while (0)
 
 #define ASSERT_VK(expr)            \

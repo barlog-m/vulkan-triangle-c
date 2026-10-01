@@ -6,7 +6,7 @@
 #include <stdio.h> // IWYU pragma: keep
 #include <string.h>// IWYU pragma: keep
 
-constexpr int LOG_MSG_LEN = 2024;
+constexpr int LOG_MSG_LEN = 2048;
 constexpr int LOG_TIME_STR_LEN = 32;
 
 enum LOG_LEVEL : uint8_t {
