@@ -36,3 +36,8 @@ void window_update_size(Window* self)
     self->height = (uint32_t)height;
     self->is_resized = true;
 }
+
+bool window_is_zero_size(Window* self)
+{
+    
+}

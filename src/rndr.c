@@ -231,7 +231,7 @@ static void rndr_record_command_buffer(Rndr* self, VkCommandBuffer command_buffe
 
 void rndr_draw_frame(Rndr* self, const Mesh* mesh)
 {
-    if (self->window->width == 0 || self->window->height == 0) {
+    if (window_is_zero_size(self->window)) {
         self->window->is_resized = true;
         return;
     }

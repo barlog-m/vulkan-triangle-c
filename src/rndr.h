@@ -11,14 +11,6 @@
 
 typedef struct Mesh Mesh;
 
-typedef struct VkSwapChainSupportDetails {
-    VkSurfaceCapabilitiesKHR capabilities;
-    VkSurfaceFormatKHR* formats;
-    size_t formats_count;
-    VkPresentModeKHR* present_modes;
-    size_t present_modes_count;
-} VkSwapChainSupportDetails;
-
 typedef struct VkQueueFamilyIndices {
     uint32_t graphics_family;
     uint32_t compute_family;

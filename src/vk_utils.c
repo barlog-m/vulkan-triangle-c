@@ -2,7 +2,7 @@
 
 #include "assert.h"
 
-void vk_create_buffer(
+void vk_buffer_init(
     VmaAllocator vma,
     VkDeviceSize size,
     VkBufferUsageFlags usage,
@@ -24,15 +24,10 @@ void vk_create_buffer(
         .usage = memory_usage,
     };
 
-    VmaAllocationInfo local_alloc_info = {};
-    ASSERT_VK(vmaCreateBuffer(vma, &buffer_info, &alloc_create_info, buffer, allocation, &local_alloc_info));
-
-    if (alloc_info) {
-        *alloc_info = local_alloc_info;
-    }
+    ASSERT_VK(vmaCreateBuffer(vma, &buffer_info, &alloc_create_info, buffer, allocation, alloc_info));
 }
 
-void vk_copy_buffer(
+void vk_buffer_copy(
     VkDevice device,
     VkQueue graphics_queue,
     VkCommandPool command_pool,
@@ -245,79 +240,6 @@ void vk_prepare_image_layouts(
 
     ASSERT_VK(vkQueueSubmit2(queue, 1, &submit_info, VK_NULL_HANDLE));
     vkQueueWaitIdle(queue);
-
-    vkFreeCommandBuffers(device, command_pool, 1, &command_buffer);
-}
-
-void vk_buffer_init(
-    VmaAllocator vma,
-    VkDeviceSize size,
-    VkBufferUsageFlags usage,
-    VmaMemoryUsage memory_usage,
-    VmaAllocationCreateFlags alloc_flags,
-    VkBuffer* buffer,
-    VmaAllocation* allocation,
-    VmaAllocationInfo* alloc_info)
-{
-    const VkBufferCreateInfo buffer_info = {
-        .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-        .size = size,
-        .usage = usage,
-        .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
-    };
-
-    const VmaAllocationCreateInfo alloc_create_info = {
-        .flags = alloc_flags,
-        .usage = memory_usage,
-    };
-
-    ASSERT_VK(vmaCreateBuffer(vma, &buffer_info, &alloc_create_info, buffer, allocation, alloc_info));
-}
-
-void vk_buffer_copy(
-    VkDevice device,
-    VkQueue graphics_queue,
-    VkCommandPool command_pool,
-    VkBuffer src_buffer,
-    VkBuffer dst_buffer,
-    VkDeviceSize size)
-{
-    const VkCommandBufferAllocateInfo alloc_info = {
-        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-        .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-        .commandPool = command_pool,
-        .commandBufferCount = 1,
-    };
-
-    VkCommandBuffer command_buffer;
-    ASSERT_VK(vkAllocateCommandBuffers(device, &alloc_info, &command_buffer));
-
-    const VkCommandBufferBeginInfo begin_info = {
-        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-        .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
-    };
-
-    ASSERT_VK(vkBeginCommandBuffer(command_buffer, &begin_info));
-
-    const VkBufferCopy copy_region = {
-        .size = size,
-    };
-    vkCmdCopyBuffer(command_buffer, src_buffer, dst_buffer, 1, &copy_region);
-
-    ASSERT_VK(vkEndCommandBuffer(command_buffer));
-
-    const VkCommandBufferSubmitInfo cmd_info = {
-        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO,
-        .commandBuffer = command_buffer,
-    };
-    const VkSubmitInfo2 submit_info = {
-        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
-        .commandBufferInfoCount = 1,
-        .pCommandBufferInfos = &cmd_info,
-    };
-
-    ASSERT_VK(vkQueueSubmit2(graphics_queue, 1, &submit_info, VK_NULL_HANDLE));
-    vkQueueWaitIdle(graphics_queue);
 
     vkFreeCommandBuffers(device, command_pool, 1, &command_buffer);
 }

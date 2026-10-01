@@ -12,6 +12,14 @@
 #include "vk_debug.h"
 #include "vk_utils.h"
 
+typedef struct VkSwapChainSupportDetails {
+    VkSurfaceCapabilitiesKHR capabilities;
+    VkSurfaceFormatKHR* formats;
+    size_t formats_count;
+    VkPresentModeKHR* present_modes;
+    size_t present_modes_count;
+} VkSwapChainSupportDetails;
+
 static VkSwapChainSupportDetails vk_query_swap_chain_support(VkPhysicalDevice gpu, VkSurfaceKHR surface)
 {
     VkSwapChainSupportDetails details = {};

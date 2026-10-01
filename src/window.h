@@ -13,5 +13,6 @@ typedef struct Window {
 Window* window_init();
 void window_fini(Window* self);
 void window_update_size(Window* self);
+bool window_is_zero_size(Window* self);
 
 #endif  // WINDOW_H
