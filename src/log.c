@@ -1,8 +1,8 @@
 #include "log.h"
 
 #ifdef _WIN32
-#    include <io.h>
-#    include <windows.h>
+#include <io.h>
+#include <windows.h>
 #endif
 
 #include <stdio.h>
@@ -17,7 +17,7 @@ enum LOG_LEVEL g_log_level = LOG_LEVEL_ALL;
 #define CONSOLE_YELLOW "\033[33m"
 #define CONSOLE_WHITE "\033[37m"
 #define CONSOLE_GRAY "\033[90m"
-#define CONSOLE_BOLD  "\033[1m"
+#define CONSOLE_BOLD "\033[1m"
 #define CONSOLE_RESET "\033[0m"
 
 #define CONSOLE_FATAL "\x1b[1m\x1b[37m\x1b[41m"
@@ -65,14 +65,14 @@ static enum LOG_LEVEL log_level_set(void)
 #ifdef _WIN32
     char* log_lvl = NULL;
     size_t len = 0;
-    if (_dupenv_s(&log_lvl, &len, "A_LOG") != 0 || log_lvl == NULL) {
+    if (_dupenv_s(&log_lvl, &len, "APP_LOG") != 0 || log_lvl == NULL) {
         return LOG_LEVEL_ALL;
     }
     const enum LOG_LEVEL lvl = log_string_to_level(log_lvl);
     free(log_lvl);
     return lvl;
 #else
-    const char* log_lvl = getenv("A_LOG");   /* POSIX path unchanged */
+    const char* log_lvl = getenv("APP_LOG");
     if (log_lvl) {
         return log_string_to_level(log_lvl);
     }
@@ -144,11 +144,13 @@ static int log_console_colors_enable(void)
 
 void log_msg(enum LOG_LEVEL lvl, const char* msg)
 {
-    if (lvl > g_log_level) return;
+    if (lvl > g_log_level) {
+        return;
+    }
 
     const struct tm local_time = log_local_time_get();
 
-    const int colorized =
+    const int colorized = 
 #ifdef _WIN32
         log_console_colors_enable();
 #else
@@ -165,7 +167,9 @@ void log_msg(enum LOG_LEVEL lvl, const char* msg)
     strftime(time_string, sizeof(time_string), "%Y-%m-%d %H:%M:%S", &local_time);
 
     char line[LOG_MSG_LEN];
-    snprintf(line, sizeof(line), "%s%s%s %s%s %s%s\n", time_color, time_string, color_reset, color, lvl_str, msg, color_reset);
+    snprintf(
+        line, sizeof(line), "%s%s%s %s%s %s%s\n", time_color, time_string, color_reset, color, lvl_str, msg,
+        color_reset);
 
     printf("%s", line);
 }

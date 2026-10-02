@@ -31,9 +31,9 @@ void log_msg(enum LOG_LEVEL lvl, const char* msg);
 #endif
 
 #if defined(__clang__) || defined(__GNUC__)
-#    define FILENAME __builtin_FILE_NAME()
+#   define FILENAME __builtin_FILE_NAME()
 #else
-#    define FILENAME src_file_basename(__FILE__)
+#   define FILENAME (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #endif
 
 #define LOG(lvl, msg)                                                                  \
