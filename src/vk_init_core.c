@@ -485,13 +485,18 @@ static void vk_create_logical_device(
     }
 }
 
+static void vk_surface_init(Rndr* rndr)
+{
+    ASSERT_SDL(SDL_Vulkan_CreateSurface(rndr->window->sdl_window, rndr->instance, nullptr, &rndr->surface));
+}
+
 void vk_device_init(Rndr* rndr)
 {
     rndr->gpu = VK_NULL_HANDLE;
 
     vk_create_instance(&rndr->instance);
-
-    ASSERT_SDL(SDL_Vulkan_CreateSurface(rndr->window->sdl_window, rndr->instance, nullptr, &rndr->surface));
+    
+    vk_surface_init(rndr);
 
     vk_pick_physical_device(rndr->instance, rndr->surface, &rndr->gpu, &rndr->msaa_samples);
 
@@ -516,3 +521,4 @@ void vk_allocator_init(Rndr* rndr)
     };
     ASSERT_VK(vmaCreateAllocator(&vma_create_info, &rndr->vma));
 }
+
